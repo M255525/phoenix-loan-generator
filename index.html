@@ -1,0 +1,1969 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>微型創業鳳凰貸款申請書產生器</title>
+<style>
+  :root{
+    --blue:#2563EB; --blue-dark:#1e3a8a; --bg:#f4f6fb; --card:#ffffff;
+    --border:#dbe0ea; --text:#1f2937; --muted:#6b7280; --danger:#dc2626; --ok:#16a34a;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:"Microsoft JhengHei","PingFang TC",sans-serif;
+    background:var(--bg); color:var(--text);
+  }
+  header{
+    background:linear-gradient(135deg,var(--blue-dark),var(--blue));
+    color:#fff; padding:18px 24px; display:flex; align-items:center; justify-content:space-between;
+    flex-wrap:wrap; gap:10px;
+  }
+  header h1{font-size:1.25rem; margin:0;}
+  header p{margin:2px 0 0; font-size:.8rem; opacity:.85;}
+  .actions{display:flex; gap:8px; flex-wrap:wrap;}
+  button{
+    cursor:pointer; border:none; border-radius:6px; padding:8px 14px; font-size:.85rem;
+    background:#fff; color:var(--blue-dark); font-weight:600;
+  }
+  button.secondary{background:rgba(255,255,255,.15); color:#fff;}
+  button.danger{background:#fff; color:var(--danger);}
+  button:hover{filter:brightness(0.95);}
+  nav.tabs{
+    display:flex; background:#fff; border-bottom:1px solid var(--border);
+    padding:0 16px; overflow-x:auto; position:sticky; top:0; z-index:10;
+  }
+  nav.tabs button{
+    background:none; border-radius:0; color:var(--muted); padding:12px 16px;
+    border-bottom:3px solid transparent; white-space:nowrap;
+  }
+  nav.tabs button.active{color:var(--blue-dark); border-bottom-color:var(--blue);}
+  main{max-width:1100px; margin:0 auto; padding:20px 16px 80px;}
+  section.tab{display:none;}
+  section.tab.active{display:block;}
+  .card{
+    background:var(--card); border:1px solid var(--border); border-radius:10px;
+    padding:18px 20px; margin-bottom:16px;
+  }
+  .card h2{font-size:1.05rem; margin:0 0 4px; color:var(--blue-dark);}
+  .card .hint{font-size:.78rem; color:var(--muted); margin:0 0 14px;}
+  .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px 16px;}
+  .field{display:flex; flex-direction:column; gap:4px;}
+  .field.full{grid-column:1/-1;}
+  label{font-size:.8rem; color:var(--muted); font-weight:600;}
+  input[type=text],input[type=number],input[type=date],textarea,select{
+    border:1px solid var(--border); border-radius:6px; padding:8px 10px; font-size:.88rem;
+    font-family:inherit; background:#fbfcfe;
+  }
+  textarea{resize:vertical; min-height:70px; line-height:1.6;}
+  .radio-row,.checkbox-row{display:flex; gap:14px; flex-wrap:wrap; font-size:.85rem;}
+  .radio-row label,.checkbox-row label{font-weight:400; color:var(--text); display:flex; align-items:center; gap:5px;}
+  .list-block{border:1px dashed var(--border); border-radius:8px; padding:10px; margin-top:6px;}
+  .list-row{display:flex; gap:8px; align-items:flex-end; margin-bottom:8px; flex-wrap:wrap;}
+  .list-row .field{flex:1; min-width:140px;}
+  .list-row button{padding:6px 10px; background:#fee2e2; color:var(--danger);}
+  .add-row-btn{background:#eef2ff; color:var(--blue-dark); font-size:.8rem; padding:6px 12px;}
+  .sum-check{font-size:.8rem; margin-top:6px; padding:6px 10px; border-radius:6px;}
+  .sum-check.ok{background:#dcfce7; color:var(--ok);}
+  .sum-check.bad{background:#fee2e2; color:var(--danger);}
+  .sum-check.warn{background:#fef3c7; color:#b45309;}
+  .note-box{background:#fff7ed; border:1px solid #fdba74; border-radius:8px; padding:10px 12px; font-size:.8rem; color:#9a3412; margin-top:8px;}
+
+  /* Preview / printable document */
+  #preview-wrap{background:#fff; border:1px solid var(--border); border-radius:10px; padding:0; overflow:hidden;}
+  #preview{padding:32px 40px; font-size:.92rem; line-height:1.9;}
+  #preview h2.doc-title{text-align:center; font-size:1.3rem; margin:0 0 4px; letter-spacing:2px;}
+  #preview h3.section-title{
+    background:#eef2ff; color:var(--blue-dark); padding:6px 10px; border-radius:6px;
+    font-size:1rem; margin:22px 0 10px;
+  }
+  #preview table{width:100%; border-collapse:collapse; margin-bottom:10px; font-size:.86rem;}
+  #preview table td,#preview table th{border:1px solid #b9c2d4; padding:6px 8px; vertical-align:top;}
+  #preview table th{background:#f4f6fb; text-align:left; width:22%;}
+  #preview p{margin:6px 0;}
+  #preview .placeholder{color:#b91c1c; font-style:italic;}
+  #preview .signature-line{margin-top:26px; display:flex; justify-content:space-between; font-size:.9rem;}
+
+  @media print{
+    header,nav.tabs,.card,.no-print{display:none !important;}
+    body{background:#fff;}
+    main{max-width:none; padding:0;}
+    #preview-wrap{border:none; border-radius:0;}
+    #preview{padding:0;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>微型創業鳳凰貸款申請書產生器</h1>
+    <p>填寫左側欄位 → 於「預覽與列印」查看整合後的申請書內容</p>
+  </div>
+  <div class="actions no-print">
+    <a href="manual.html" target="_blank" style="text-decoration:none;"><button class="secondary" type="button">操作手冊</button></a>
+    <input type="file" id="fileUpload" accept=".pdf,.docx" style="display:none;">
+    <button class="secondary" id="btnUpload">上傳申請書辨識</button>
+    <select id="sampleSelect" style="border-radius:6px; border:none; padding:8px 10px; font-size:.85rem; font-weight:600;"></select>
+    <button class="secondary" id="btnLoadSample">載入所選範例</button>
+    <button class="danger" id="btnClear">清空重填</button>
+    <button id="btnPrint">列印／匯出 PDF</button>
+  </div>
+</header>
+
+<nav class="tabs no-print">
+  <button data-tab="applicant" class="active">一、申請人基本資料</button>
+  <button data-tab="business">二、所營事業資料</button>
+  <button data-tab="finance">三、財務與資金計畫</button>
+  <button data-tab="plan">四、創業貸款計畫書</button>
+  <button data-tab="preview">五、預覽與列印</button>
+</nav>
+
+<main>
+
+<!-- ============ TAB 1: 申請人基本資料 ============ -->
+<section class="tab active" data-tab="applicant">
+  <div class="card no-print" id="importReportCard" style="display:none;">
+    <h2>申請書辨識結果</h2>
+    <p class="hint">檔案僅在你的瀏覽器本機解析，不會上傳到任何伺服器。辨識結果請逐欄核對後再使用。</p>
+    <div id="importReport" style="font-size:.83rem; line-height:1.9;"></div>
+  </div>
+  <div class="card">
+    <h2>基本資料</h2>
+    <p class="hint">對應申請書「壹、申請人基本資料」表格。</p>
+    <div class="grid">
+      <div class="field"><label>姓名</label><input type="text" data-path="applicant.name"></div>
+      <div class="field"><label>出生年月日（民國）</label><input type="text" data-path="applicant.birthDate" placeholder="例：民國67年8月16日"></div>
+      <div class="field"><label>國民身分證統一編號</label><input type="text" data-path="applicant.idNumber"></div>
+      <div class="field"><label>聯絡電話</label><input type="text" data-path="applicant.phone"></div>
+      <div class="field"><label>手機</label><input type="text" data-path="applicant.mobile"></div>
+      <div class="field"><label>e-mail</label><input type="text" data-path="applicant.email"></div>
+      <div class="field"><label>傳真</label><input type="text" data-path="applicant.fax"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>婚姻狀況</h2>
+    <div class="radio-row" id="maritalRadio"></div>
+    <div class="grid" id="spouseFields" style="margin-top:10px;">
+      <div class="field"><label>配偶姓名</label><input type="text" data-path="applicant.spouseName"></div>
+      <div class="field"><label>配偶身分證字號</label><input type="text" data-path="applicant.spouseId"></div>
+      <div class="field"><label>配偶職業</label><input type="text" data-path="applicant.spouseJob"></div>
+      <div class="field"><label>配偶聯絡電話</label><input type="text" data-path="applicant.spousePhone"></div>
+      <div class="field"><label>配偶手機</label><input type="text" data-path="applicant.spouseMobile"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>戶籍與通訊地址</h2>
+    <div class="grid">
+      <div class="field full"><label>戶籍地址</label><input type="text" data-path="applicant.householdAddress"></div>
+      <div class="field full"><label>通訊地址</label><input type="text" data-path="applicant.mailingAddress"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>聯絡親友</h2>
+    <p class="hint">請提供 1-2 位非同住親友作為緊急聯絡人。</p>
+    <div class="list-block" id="contactsList"></div>
+    <button class="add-row-btn" id="addContact">＋ 新增聯絡人</button>
+  </div>
+
+  <div class="card">
+    <h2>身分別與教育程度</h2>
+    <div class="grid">
+      <div class="field">
+        <label>最近一次失業週期</label>
+        <select data-path="applicant.unemploymentPeriod">
+          <option value="lt1m">未滿1個月</option>
+          <option value="1to6m">1個月以上至未滿6個月</option>
+          <option value="6mto1y">6個月以上至未滿1年</option>
+          <option value="1to3y">1年以上至未滿3年</option>
+          <option value="gt3y">3年以上</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>身分別（擇一）</label>
+        <select data-path="applicant.identityType">
+          <option value="general">1.一般身分</option>
+          <option value="special_family">2.特殊境遇家庭</option>
+          <option value="domestic_violence">3.家庭暴力被害人</option>
+          <option value="occupational_injury">4.職災戶</option>
+          <option value="crime_victim">5.犯罪被害人</option>
+          <option value="low_income">6.低收入戶</option>
+          <option value="disaster">7.災害受災者</option>
+          <option value="sole_provider">8.獨力負擔家計者</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>教育程度</label>
+        <select data-path="applicant.education">
+          <option value="elementary">國小及以下</option>
+          <option value="junior">國中</option>
+          <option value="senior">高中職</option>
+          <option value="college">專科</option>
+          <option value="university">大學</option>
+          <option value="graduate">碩士及以上</option>
+        </select>
+      </div>
+    </div>
+    <p class="hint" style="margin-top:12px;">其他身分別（可複選，無則免勾）</p>
+    <div class="checkbox-row" id="otherIdentitiesBox"></div>
+  </div>
+
+  <div class="card">
+    <h2>經歷（時間近者在前）</h2>
+    <div class="list-block" id="experienceList"></div>
+    <button class="add-row-btn" id="addExperience">＋ 新增經歷</button>
+  </div>
+
+  <div class="card">
+    <h2>職業訓練（無則免填）</h2>
+    <div class="list-block" id="trainingList"></div>
+    <button class="add-row-btn" id="addTraining">＋ 新增職訓紀錄</button>
+  </div>
+</section>
+
+<!-- ============ TAB 2: 所營事業資料 ============ -->
+<section class="tab" data-tab="business">
+  <div class="card">
+    <h2>事業基本資料</h2>
+    <div class="grid">
+      <div class="field full"><label>事業名稱（全銜）</label><input type="text" data-path="business.name"></div>
+      <div class="field">
+        <label>登記類型</label>
+        <select data-path="business.regType">
+          <option value="company">公司登記</option>
+          <option value="business">商業登記</option>
+          <option value="license">立案登記（托嬰中心／幼兒園／課後照顧／短期補習班）</option>
+          <option value="small">免申請商業登記之小規模商業（攤販／家庭農林漁牧／家庭手工／民宿／小額銷售）</option>
+        </select>
+      </div>
+      <div class="field"><label>設立日期（民國）</label><input type="text" data-path="business.establishDate" placeholder="例：112年07月25日"></div>
+      <div class="field"><label>統一編號／立案編號</label><input type="text" data-path="business.taxId"></div>
+      <div class="field"><label>員工人數（不含負責人）</label><input type="number" data-path="business.employeeCount"></div>
+      <div class="field">
+        <label>是否為加盟事業</label>
+        <select data-path="business.isFranchise">
+          <option value="false">否</option>
+          <option value="true">是</option>
+        </select>
+      </div>
+      <div class="field"><label>加盟總部名稱（如適用）</label><input type="text" data-path="business.franchiseName"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>事業地址</h2>
+    <div class="grid">
+      <div class="field full"><label>事業登記地址</label><input type="text" data-path="business.regAddress"></div>
+      <div class="field"><label>登記地電話</label><input type="text" data-path="business.regPhone"></div>
+      <div class="field full"><label>營運地址／店面</label><input type="text" data-path="business.operateAddress"></div>
+      <div class="field"><label>營運地電話</label><input type="text" data-path="business.operatePhone"></div>
+      <div class="field full"><label>工廠／倉庫地址（無則留空或填「同上」）</label><input type="text" data-path="business.factoryAddress"></div>
+      <div class="field"><label>工廠／倉庫電話</label><input type="text" data-path="business.factoryPhone"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>主要產品／業務與營業項目</h2>
+    <div class="grid">
+      <div class="field full"><label>主要產品（或業務）</label><input type="text" data-path="business.mainProducts"></div>
+      <div class="field full"><label>營業項目（請依營業登記核准文件填寫，含代碼）</label><textarea data-path="business.businessItems"></textarea></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TAB 3: 財務與資金計畫 ============ -->
+<section class="tab" data-tab="finance">
+  <div class="card">
+    <h2>申貸前1年（或新設立第1年）營業損益</h2>
+    <div class="grid">
+      <div class="field"><label>損益金額（虧損請填負數，例：-567470）</label><input type="number" data-path="finance.lastYearProfitLoss"></div>
+    </div>
+    <div class="field full" style="margin-top:10px;">
+      <label>損益說明（建議具體說明虧損／獲利原因，避免空泛敘述）</label>
+      <textarea data-path="finance.profitLossNote" rows="5"></textarea>
+    </div>
+    <div class="note-box">審查人員最常追問：「虧損原因是什麼？之後如何轉正？」請具體說明是草創期成本結構、進貨規模不足，還是其他原因，並與下方「償貸計畫」的獲利假設互相呼應。</div>
+  </div>
+
+  <div class="card">
+    <h2>創業資金來源</h2>
+    <div class="grid">
+      <div class="field"><label>本計畫資金總額（元）</label><input type="number" data-path="finance.totalFunding"></div>
+      <div class="field"><label>①自備金額（元）</label><input type="number" data-path="finance.selfFunding"></div>
+      <div class="field"><label>②標會金額（元）</label><input type="number" data-path="finance.raisedFunding"></div>
+      <div class="field"><label>③親友借款金額（元）</label><input type="number" data-path="finance.friendLoan"></div>
+      <div class="field"><label>④金融機構貸款金額（元）</label><input type="number" data-path="finance.bankLoanExisting"></div>
+      <div class="field"><label>⑤其他資金（元）</label><input type="number" data-path="finance.otherFunding"></div>
+    </div>
+    <div id="neededFundingCheck" class="sum-check"></div>
+  </div>
+
+  <div class="card">
+    <h2>個人及所營事業借（貸）款情況</h2>
+    <p class="hint">未誠實填報者，銀行得拒絕放貸——請務必如實列出目前所有借貸。</p>
+    <div class="list-block" id="loanItemsList"></div>
+    <button class="add-row-btn" id="addLoanItem">＋ 新增借款項目</button>
+  </div>
+
+  <div class="card">
+    <h2>現有設備（如器具、設備、存貨）</h2>
+    <p class="hint">申請書原稿此欄常見空白，是常被要求補件的項目之一，請務必填寫。</p>
+    <div class="list-block" id="equipmentList"></div>
+    <button class="add-row-btn" id="addEquipment">＋ 新增設備／存貨項目</button>
+  </div>
+
+  <div class="card">
+    <h2>尚需資金用途明細</h2>
+    <p class="hint">請將「尚需資金總額」拆成具體項目，金額加總應等於尚需資金總額，審查人員才能判斷資金去向合理性。</p>
+    <div class="list-block" id="fundUseList"></div>
+    <button class="add-row-btn" id="addFundUse">＋ 新增資金用途項目</button>
+    <div id="fundUseCheck" class="sum-check"></div>
+  </div>
+
+  <div class="card">
+    <h2>貸款用途及預計效益說明</h2>
+    <div class="field full">
+      <textarea data-path="finance.loanPurposeExplanation" rows="4"></textarea>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>申請貸款金額、期間與銀行</h2>
+    <div class="grid">
+      <div class="field"><label>申請貸款金額（元）</label><input type="number" data-path="finance.requestedLoanAmount"></div>
+      <div class="field"><label>貸款期間（年）</label><input type="number" data-path="finance.loanPeriodYears"></div>
+      <div class="field">
+        <label>申請貸款銀行</label>
+        <select data-path="finance.bank">
+          <option value="taiwan">臺灣銀行</option>
+          <option value="land">臺灣土地銀行</option>
+          <option value="sme">臺灣中小企業銀行</option>
+          <option value="tcb">合作金庫商業銀行</option>
+          <option value="first">第一商業銀行</option>
+          <option value="changhwa">彰化商業銀行</option>
+          <option value="hncb">華南商業銀行</option>
+        </select>
+      </div>
+      <div class="field"><label>分行名稱</label><input type="text" data-path="finance.bankBranch"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TAB 4: 創業貸款計畫書 ============ -->
+<section class="tab" data-tab="plan">
+  <div class="card no-print" style="border-color:#c7d2fe; background:#f5f7ff;">
+    <h2>一鍵生成／優化計畫書內容</h2>
+    <p class="hint">依目前已填的數字與事實，離線以規則模板重組內容（純本機運算，不會連網、不會上傳資料）。<br>
+    會覆蓋：損益說明（空白或過短時）、貸款用途及效益說明、償貸每月攤還數字（依貸款金額／期間／利率重算）、獲利轉正說明、自傳簡述。其他敘述欄位不更動。生成前會自動備份，可一鍵復原。</p>
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+      <button id="btnGenerate" style="background:var(--blue); color:#fff;">生成／優化計畫書內容</button>
+      <button id="btnRestoreBackup" style="background:#e5e7eb; color:var(--text);" disabled>復原生成前內容</button>
+    </div>
+    <div id="generateReport" style="font-size:.83rem; line-height:1.9; margin-top:10px;"></div>
+  </div>
+
+  <div class="card no-print" style="border-color:#fcd34d; background:#fffdf5;">
+    <h2>AI 優化（串接語言模型 API，選用）</h2>
+    <p class="hint">填入你自己的 API 金鑰，讓語言模型參考目前已填的全部內容，重寫計畫書的敘述段落——數字與事實不會被更動，缺少的具體事實會以【】標示請你補填。<br>
+    注意：金鑰只儲存在這台電腦的瀏覽器（localStorage），請勿在共用電腦上填寫；按下優化時，目前的計畫書內容會傳送給所選的模型服務商。優化前會自動備份，可用上方「復原生成前內容」還原。</p>
+    <div class="grid">
+      <div class="field">
+        <label>服務商</label>
+        <select id="aiProvider"></select>
+      </div>
+      <div class="field"><label>模型（可自行修改）</label><input type="text" id="aiModel"></div>
+      <div class="field"><label>API 金鑰</label><input type="password" id="aiKey" placeholder="貼上你的 API key" autocomplete="off"></div>
+    </div>
+    <div class="field full" style="margin-top:10px;">
+      <label>優化方向提示詞（選填）——告訴 AI 你希望計畫書往哪個方向強化</label>
+      <textarea id="aiHint" rows="3" placeholder="例如：請把重心放在還款能力，讓審查人員一眼看出每月攤還金額相對獲利很輕鬆…"></textarea>
+    </div>
+    <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; align-items:center;">
+      <span style="font-size:.78rem; color:var(--muted);">範例提示詞（點擊套用）：</span>
+      <button type="button" class="add-row-btn ai-hint-example" data-hint="請把全篇重心放在「還款能力」：具體呈現客源穩定度、毛利結構與每月可支配盈餘，讓審查人員一眼看出每月攤還金額佔獲利的比例很低、按時還款沒有問題。與還款能力無關的描述請精簡。">① 強化還款能力</button>
+      <button type="button" class="add-row-btn ai-hint-example" data-hint="請突顯「在地深耕與既有客源基礎」：具體描述主要客群是誰、回頭客與轉介紹的比重、口碑從哪裡來，並說明資金到位後如何在既有客源上放大營收——是把做得起來的生意做大，不是從零開發陌生市場。">② 強化客源基礎</button>
+      <button type="button" class="add-row-btn ai-hint-example" data-hint="請聚焦在「這筆資金解決什麼瓶頸」：說清楚現況卡在哪裡（產能、備貨或人力）、資金到位後每月能多承接多少生意，用保守的數字推估效益，寧可低估也不要誇大，並說明如果成長不如預期仍有能力按月攤還。">③ 強化資金效益</button>
+    </div>
+    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
+      <button id="btnAiGenerate" style="background:#b45309; color:#fff;">AI 優化計畫書內容（連網）</button>
+    </div>
+    <div id="aiReport" style="font-size:.83rem; line-height:1.9; margin-top:10px;"></div>
+  </div>
+  <div class="card">
+    <h2>一、經營現況</h2>
+    <div class="field full"><label>（一）產品或服務內容、主要用途、功能、特點及售價</label><textarea data-path="plan.productService" rows="6"></textarea></div>
+    <div class="field full"><label>（二）營業時間、尖峰時段、人潮特性</label><textarea data-path="plan.businessHours" rows="2"></textarea></div>
+    <div class="field full"><label>（三）現有或潛在客源／訂單</label><textarea data-path="plan.customerSource" rows="5"></textarea></div>
+    <div class="field full"><label>（四）與他人共同經營及具體分工說明（無共同經營者免填）</label><textarea data-path="plan.coOperationNote" rows="2"></textarea></div>
+  </div>
+
+  <div class="card">
+    <h2>二、市場分析</h2>
+    <div class="field full"><label>（一）目標市場、定價、銷售方式、如何擴大客源、競爭優勢</label><textarea data-path="plan.targetMarketAnalysis" rows="6"></textarea></div>
+    <div class="field full"><label>（二）市場潛力及未來3年展望</label><textarea data-path="plan.marketOutlook" rows="4"></textarea></div>
+  </div>
+
+  <div class="card">
+    <h2>三、償貸計畫</h2>
+    <div class="grid">
+      <div class="field"><label>第1、2年預估淨利（元）</label><input type="number" data-path="plan.repayment.year1_2NetProfit"></div>
+      <div class="field"><label>第1、2年每月攤還本金（元）</label><input type="number" data-path="plan.repayment.monthlyPrincipal1_2"></div>
+      <div class="field"><label>第3年起預估淨利（元）</label><input type="number" data-path="plan.repayment.year3NetProfit"></div>
+      <div class="field"><label>貸款利率（%）</label><input type="number" step="0.001" data-path="plan.repayment.interestRate"></div>
+      <div class="field"><label>第3年起每月攤還本息（元）</label><input type="number" data-path="plan.repayment.monthlyPayment3"></div>
+    </div>
+    <div class="field full" style="margin-top:10px;">
+      <label>獲利轉正說明（新增欄位——說明由虧轉盈的具體假設，銜接前面財務分析的虧損原因）</label>
+      <textarea data-path="plan.profitBridgeExplanation" rows="5"></textarea>
+    </div>
+    <div class="note-box">如果「申貸前1年損益」是虧損，這裡務必說明清楚為什麼貸款到位後可以轉為預估淨利，並盡量附上具體假設（例如營業額提升幅度、毛利率變化），否則審查人員會質疑數字是否可信。</div>
+  </div>
+
+  <div class="card">
+    <h2>四、自傳簡述（含創業動機）</h2>
+    <div class="field full">
+      <textarea data-path="plan.autobiography" rows="8"></textarea>
+    </div>
+    <div class="note-box">建議聚焦在：相關經驗年資、人脈與客源基礎、創業動機、還款能力／家庭因素。避免離題描述職場恩怨或情緒化用語，這些內容與貸款審核無關，反而可能讓人對經營穩定性產生疑慮。</div>
+  </div>
+</section>
+
+<!-- ============ TAB 5: 預覽與列印 ============ -->
+<section class="tab" data-tab="preview">
+  <div class="card no-print">
+    <h2>切結書確認</h2>
+    <label style="display:flex; align-items:center; gap:8px; font-weight:400; font-size:.9rem;">
+      <input type="checkbox" data-path="oath.agree" style="width:auto;"> 本人已詳閱、瞭解並同意申請書所載各款切結事項
+    </label>
+    <div class="grid" style="margin-top:10px;">
+      <div class="field"><label>切結日期（民國，例：113年11月11日）</label><input type="text" data-path="oath.signDate"></div>
+    </div>
+  </div>
+  <div id="preview-wrap">
+    <div id="preview"></div>
+  </div>
+</section>
+
+</main>
+
+<footer class="no-print" style="text-align:center; padding:16px; font-size:.78rem; color:var(--muted); line-height:1.8;">
+  製作：Mark Tsai（詳見 <a href="manual.html" target="_blank" style="color:var(--blue);">操作手冊</a>）<br>
+  本工具僅供教學、課程及個人使用，禁止未經授權公開發布、販售或商業化使用。
+</footer>
+
+<script>
+/* ---------------- 五個虛構產業範例（僅供 Demo 使用，人名／統編／電話／地址皆為虛構，如有雷同純屬巧合） ---------------- */
+const SAMPLE_LIBRARY = {
+
+  breakfast:{
+    label:"早餐店（晨光豆漿專賣店）",
+    state:{
+      applicant:{
+        name:"陳雅婷", birthDate:"民國78年3月22日", idNumber:"A223456789",
+        phone:"034567890", mobile:"0912345678", email:"demo01@example.com", fax:"",
+        maritalStatus:"single", spouseName:"", spouseId:"", spouseJob:"", spousePhone:"", spouseMobile:"",
+        householdAddress:"320013桃園市中壢區中央路一段100號",
+        mailingAddress:"320013桃園市中壢區中央路一段100號",
+        contacts:[{name:"陳建國", relation:"父親", phone:"0922111222"}],
+        unemploymentPeriod:"1to6m", identityType:"general", otherIdentities:[], education:"senior",
+        experience:[
+          {company:"晨光豆漿專賣店", title:"負責人", startDate:"113年3月", endDate:"至今"},
+          {company:"美又美早餐店", title:"內場人員", startDate:"110年6月", endDate:"113年2月"}
+        ],
+        training:[{institute:"桃園市政府勞動局", field:"創業輔導班", startDate:"112年10月", endDate:"112年11月", cert:"結業證書"}]
+      },
+      business:{
+        name:"晨光豆漿專賣店", regType:"small", establishDate:"113年03月01日", taxId:"12345678",
+        isFranchise:"false", franchiseName:"", employeeCount:1,
+        regAddress:"320013桃園市中壢區中央路一段100號", regPhone:"034567890",
+        operateAddress:"320013桃園市中壢區中央路一段100號", operatePhone:"034567890",
+        factoryAddress:"", factoryPhone:"",
+        mainProducts:"現做豆漿、蛋餅、飯糰等傳統早餐",
+        businessItems:"F399010 早餐店"
+      },
+      finance:{
+        lastYearProfitLoss:85000,
+        profitLossNote:"本店113年3月開業，前3個月為建立客源之磨合期，第4個月起營收逐漸穩定，累計至今帳列淨利約85,000元。目前每日供應約150份早餐，尖峰時段（7:00-9:00）常因現有設備產能不足而流失排隊客人。",
+        totalFunding:600000, selfFunding:300000, raisedFunding:0, friendLoan:0, bankLoanExisting:0, otherFunding:0,
+        loanItems:[],
+        existingEquipment:[
+          {item:"豆漿機（半自動，日產能約80人份）", note:"自有，已使用3年"},
+          {item:"平台式煎台", note:"自有1台"}
+        ],
+        fundUse:[
+          {item:"全自動豆漿機及冷藏設備", amount:220000},
+          {item:"食材原料週轉金", amount:80000}
+        ],
+        loanPurposeExplanation:"本貸款300,000元主要用於汰換全自動豆漿機及增設冷藏設備，提升尖峰時段出餐效率，並補足食材原料週轉金，以因應排隊人潮增加後的備料需求。",
+        requestedLoanAmount:300000, loanPeriodYears:5,
+        bank:"land", bankBranch:"中壢"
+      },
+      plan:{
+        productService:"服務內容：\n現點現做豆漿、蛋餅、飯糰、蘿蔔糕等傳統中式早餐，主力商品為自製豆漿（無添加、每日現磨），售價35-65元。\n\n主要客群為鄰近上班族與學生，強調現做、不使用預拌粉。",
+        businessHours:"週一至週六05:30-11:00，週日公休。尖峰時段為07:00-09:00上班上學時段。",
+        customerSource:"目前每日平均出餐約150份，鄰近兩間國小與一處科技園區為主要客源，其中約6成為固定熟客。透過店面招牌及口碑吸引路過客群，尚未進行外送平台合作，為潛在成長空間。",
+        coOperationNote:"",
+        targetMarketAnalysis:"目標客群為鄰近上班族、學生及社區住戶，定價與周邊早餐店相近，強調現做豆漿與食材新鮮度作為差異化。\n\n擴大客源方式：\n1. 加入外送平台（Foodpanda／Uber Eats）觸及店面商圈外客群。\n2. 熟客介紹與社群口碑。\n\n競爭優勢：現點現做、無添加化學香精，並提供內用座位供上班族用餐。",
+        marketOutlook:"早餐為民生剛需，商圈內上班族與學生人口穩定。未來3年計畫視營運狀況評估加入外送平台，並視座位周轉率考慮增加內用座位。",
+        repayment:{year1_2NetProfit:340000, monthlyPrincipal1_2:5000, year3NetProfit:380000, interestRate:1.845, monthlyPayment3:5300},
+        profitBridgeExplanation:"目前受限於豆漿機產能，尖峰時段常有客人因等候過久而放棄排隊。貸款汰換設備後預估可提升單日出餐量約3成，加上外送平台預計帶來之新增訂單，故預估第1年淨利可提升至34萬元左右。",
+        autobiography:"本人35歲，單身。曾於早餐店擔任內場工作近3年，熟悉早餐店內場作業與食材管理。113年3月頂讓現址店面自行創業，維持原有熟客基礎並持續優化口味。創業動機為累積多年內場經驗後，希望能有自己的事業並掌握產品品質。本次申貸主要用於設備升級，以解決尖峰產能不足的問題。"
+      },
+      oath:{agree:false, signDate:""}
+    }
+  },
+
+  leather:{
+    label:"手工皮革工作室（皮術良品工作室）",
+    state:{
+      applicant:{
+        name:"林彥廷", birthDate:"民國72年11月5日", idNumber:"B134567890",
+        phone:"", mobile:"0933222111", email:"demo02@example.com", fax:"",
+        maritalStatus:"married", spouseName:"周美玲", spouseId:"C245678901", spouseJob:"服務業", spousePhone:"", spouseMobile:"0955666777",
+        householdAddress:"407018臺中市西屯區文心路三段99號",
+        mailingAddress:"407018臺中市西屯區文心路三段99號",
+        contacts:[{name:"林建志", relation:"哥哥", phone:"0977888999"}],
+        unemploymentPeriod:"lt1m", identityType:"general", otherIdentities:[], education:"university",
+        experience:[
+          {company:"皮術良品工作室", title:"負責人", startDate:"112年5月", endDate:"至今"},
+          {company:"某皮件代工廠", title:"版型師", startDate:"105年3月", endDate:"112年4月"}
+        ],
+        training:[{institute:"台中市勞工局", field:"手工皮件創業班", startDate:"111年9月", endDate:"111年10月", cert:"結業證書"}]
+      },
+      business:{
+        name:"皮術良品工作室", regType:"business", establishDate:"112年05月10日", taxId:"23456789",
+        isFranchise:"false", franchiseName:"", employeeCount:0,
+        regAddress:"407018臺中市西屯區文心路三段99號", regPhone:"0933222111",
+        operateAddress:"407006臺中市西屯區朝富路56號", operatePhone:"0933222111",
+        factoryAddress:"", factoryPhone:"",
+        mainProducts:"手工植鞣皮革包款、皮夾、客製刻字禮品",
+        businessItems:"C205010 皮革製品製造業"
+      },
+      finance:{
+        lastYearProfitLoss:-120000,
+        profitLossNote:"工作室於112年5月成立，首年為建立品牌知名度，大量參與市集及展覽推廣，行銷與材料成本投入較高，致112年度帳列虧損120,000元。目前接單量穩定成長，客製訂單占比逐月提升。",
+        totalFunding:500000, selfFunding:200000, raisedFunding:0, friendLoan:0, bankLoanExisting:0, otherFunding:0,
+        loanItems:[
+          {type:"credit", name:"一般信用貸款", amount:150000, purpose:"創業初期週轉", monthlyPayment:4200, bank:""}
+        ],
+        existingEquipment:[
+          {item:"工業用縫紉機", note:"自有1台"},
+          {item:"裁皮工具組", note:"自有一批"}
+        ],
+        fundUse:[
+          {item:"皮革原料備貨", amount:180000},
+          {item:"雷射雕刻機（客製刻字用）", amount:120000}
+        ],
+        loanPurposeExplanation:"本貸款300,000元主要用於：（1）皮革原料備貨，以因應客製訂單交期需求；（2）添購雷射雕刻機，提升客製刻字商品之產能與精緻度，減少委外雕刻的成本與等待時間。",
+        requestedLoanAmount:300000, loanPeriodYears:7,
+        bank:"hncb", bankBranch:"台中"
+      },
+      plan:{
+        productService:"服務內容：\n手工植鞣皮革製作之包款、皮夾、證件夾及客製刻字禮品，售價依款式與皮革等級介於800元至6,000元不等。\n\n特色為全程手工縫製、可提供客製姓名或圖案雷射雕刻，商品具唯一性與紀念價值，適合作為婚禮小物、企業贈禮。",
+        businessHours:"接單制，工作室無固定門市營業時間，主要透過市集擺攤（每月2-3場）及網路社群接單。",
+        customerSource:"目前主要客源為Instagram與市集擺攤累積之熟客，客製禮品訂單以企業及婚禮客戶為主，近半年月均訂單量約25-30件，客製訂單占比約4成並持續成長。",
+        coOperationNote:"",
+        targetMarketAnalysis:"目標客群為重視手作質感、願意為客製化與紀念意義付費之消費者，定價高於量產皮件但低於精品品牌。\n\n擴大客源方式：\n1. 持續參與市集擺攤，累積實體曝光與試用機會。\n2. 經營Instagram展示製作過程，吸引重視工藝的客群。\n\n競爭優勢：全程手工、可客製刻字、原料採用植鞣真皮，並提供售後保養服務。",
+        marketOutlook:"手工客製商品市場需求穩定成長，尤其企業贈禮與婚禮小物需求逐年增加。未來3年計畫擴大客製刻字商品線，並評估與婚禮顧問公司異業合作。",
+        repayment:{year1_2NetProfit:180000, monthlyPrincipal1_2:3571, year3NetProfit:230000, interestRate:2.025, monthlyPayment3:4020},
+        profitBridgeExplanation:"112年度虧損主因為品牌建立期的行銷與材料投入，目前訂單量已進入穩定成長軌道。貸款到位後可縮短雷射雕刻交期並降低委外成本，預估毛利率可提升，第1年可望轉虧為盈。",
+        autobiography:"本人42歲，已婚，育有1子。曾任職皮件代工廠版型師逾7年，熟悉皮件打版、裁製與品質把關。112年5月自立門戶成立工作室，結合多年版型經驗與手作興趣。創業動機為累積技術後希望建立自有品牌，本次申貸主要用於補足原料庫存與提升雕刻設備效率。"
+      },
+      oath:{agree:false, signDate:""}
+    }
+  },
+
+  petgroom:{
+    label:"寵物美容店（毛孩子寵物美容館）",
+    state:{
+      applicant:{
+        name:"張淑芬", birthDate:"民國69年7月18日", idNumber:"D156789012",
+        phone:"", mobile:"0966123456", email:"demo03@example.com", fax:"",
+        maritalStatus:"married", spouseName:"王志成", spouseId:"E267890123", spouseJob:"工程師", spousePhone:"", spouseMobile:"0977234567",
+        householdAddress:"807012高雄市三民區建工路200號",
+        mailingAddress:"807012高雄市三民區建工路200號",
+        contacts:[
+          {name:"張雅雯", relation:"妹妹", phone:"0933444555"},
+          {name:"王志成", relation:"配偶", phone:"0977234567"}
+        ],
+        unemploymentPeriod:"6mto1y", identityType:"sole_provider", otherIdentities:[], education:"college",
+        experience:[
+          {company:"毛孩子寵物美容館", title:"負責人", startDate:"112年9月", endDate:"至今"},
+          {company:"某連鎖寵物美容店", title:"美容師", startDate:"103年2月", endDate:"112年8月"}
+        ],
+        training:[{institute:"高雄市勞工局", field:"寵物美容創業班", startDate:"112年5月", endDate:"112年6月", cert:"結業證書"}]
+      },
+      business:{
+        name:"毛孩子寵物美容館", regType:"business", establishDate:"112年09月15日", taxId:"34567890",
+        isFranchise:"false", franchiseName:"", employeeCount:1,
+        regAddress:"807012高雄市三民區建工路200號", regPhone:"073456789",
+        operateAddress:"807012高雄市三民區建工路200號", operatePhone:"073456789",
+        factoryAddress:"", factoryPhone:"",
+        mainProducts:"犬貓洗澡、美容修剪、指甲護理及寵物用品零售",
+        businessItems:"F399050 寵物美容業"
+      },
+      finance:{
+        lastYearProfitLoss:45000,
+        profitLossNote:"本店112年9月開業，首年因設備尚未齊全，僅能承接中小型犬隻美容，營運至今帳列淨利45,000元。近期詢問度提升但因烘毛設備效能不足，單日服務隻數受限，常需請客人候補預約。",
+        totalFunding:450000, selfFunding:200000, raisedFunding:0, friendLoan:0, bankLoanExisting:0, otherFunding:0,
+        loanItems:[
+          {type:"vehicle", name:"機車貸款", amount:60000, purpose:"代步交通工具", monthlyPayment:2500, bank:""}
+        ],
+        existingEquipment:[
+          {item:"洗澡台", note:"自有1組"},
+          {item:"手持吹水機", note:"自有2台"}
+        ],
+        fundUse:[
+          {item:"專業桶式烘毛機", amount:150000},
+          {item:"美容用電剪及工具組更新", amount:60000},
+          {item:"店面裝潢局部改善（等候區）", amount:40000}
+        ],
+        loanPurposeExplanation:"本貸款250,000元主要用於添購專業桶式烘毛機以縮短烘毛時間、更新美容工具組提升服務品質與效率，並改善等候區裝潢以提升客戶等待體驗，藉此提升單日可服務隻數。",
+        requestedLoanAmount:250000, loanPeriodYears:5,
+        bank:"sme", bankBranch:"三民"
+      },
+      plan:{
+        productService:"服務內容：\n提供犬貓洗澡、美容修剪造型、指甲修剪及耳朵清潔等服務，並零售寵物飼料與清潔用品。收費依犬種體型分級，小型犬600-900元，中型犬900-1,300元，大型犬1,300元以上。\n\n特色為每隻寵物採預約單獨服務時段，避免多隻寵物同籠等候造成緊迫。",
+        businessHours:"週二至週日10:00-19:00，週一公休。假日為預約高峰時段。",
+        customerSource:"目前累積穩定客源約120位飼主，多為社區住戶，透過店面招牌、社群粉專及既有客戶介紹為主要客源管道，假日預約經常滿檔並有候補名單。",
+        coOperationNote:"",
+        targetMarketAnalysis:"目標客群為社區內有中小型犬貓之飼主，定價貼近市場行情，強調單隻預約、避免緊迫的服務方式。\n\n擴大客源方式：\n1. 經營社群粉專分享美容前後對比，建立口碑。\n2. 既有客戶轉介紹（現有約3成新客來自介紹）。\n\n競爭優勢：單隻預約制、美容師具連鎖店多年經驗，並提供飼主等候諮詢寵物照護問題。",
+        marketOutlook:"寵物飼養率逐年提升，美容需求穩定成長。未來3年計畫視預約滿載狀況評估增聘第2位美容師，並擴充寵物用品零售品項。",
+        repayment:{year1_2NetProfit:180000, monthlyPrincipal1_2:4167, year3NetProfit:220000, interestRate:1.845, monthlyPayment3:4650},
+        profitBridgeExplanation:"目前受限於烘毛設備效能，單日服務隻數已達上限並有候補客人流失之情形。貸款設備到位後預估可縮短單隻服務時間、提升單日服務隻數約4成，帶動營收成長，故第1年淨利可望提升至18萬元左右。",
+        autobiography:"本人46歲，已婚，育有子女，目前為家中主要經濟來源。曾於連鎖寵物美容店擔任美容師逾8年，具備扎實美容技術與客戶服務經驗。112年9月自立門戶開設個人美容館，延續多年累積之客源基礎。創業動機為希望發揮多年專業並擁有自己的事業，本次申貸主要用於解決設備產能瓶頸。"
+      },
+      oath:{agree:false, signDate:""}
+    }
+  },
+
+  skincare:{
+    label:"手作保養品電商（森林系手作保養品）",
+    state:{
+      applicant:{
+        name:"黃詩涵", birthDate:"民國85年2月9日", idNumber:"F178901234",
+        phone:"", mobile:"0988345678", email:"demo04@example.com", fax:"",
+        maritalStatus:"single", spouseName:"", spouseId:"", spouseJob:"", spousePhone:"", spouseMobile:"",
+        householdAddress:"701004臺南市東區大學路50號",
+        mailingAddress:"701004臺南市東區大學路50號",
+        contacts:[{name:"黃美惠", relation:"母親", phone:"0911222333"}],
+        unemploymentPeriod:"lt1m", identityType:"general", otherIdentities:[], education:"university",
+        experience:[
+          {company:"森林系手作保養品", title:"負責人", startDate:"113年1月", endDate:"至今"},
+          {company:"某美妝電商公司", title:"行銷企劃", startDate:"109年7月", endDate:"112年12月"}
+        ],
+        training:[{institute:"經濟部中小企業處", field:"網路開店創業研習", startDate:"112年8月", endDate:"112年9月", cert:"結業證書"}]
+      },
+      business:{
+        name:"森林系手作保養品", regType:"business", establishDate:"113年01月08日", taxId:"45678901",
+        isFranchise:"false", franchiseName:"", employeeCount:1,
+        regAddress:"701004臺南市東區大學路50號", regPhone:"062345678",
+        operateAddress:"701004臺南市東區大學路50號", operatePhone:"062345678",
+        factoryAddress:"", factoryPhone:"",
+        mainProducts:"天然手工皂、植萃精油護手霜、有機洗髮露",
+        businessItems:"F199990 化妝品零售業"
+      },
+      finance:{
+        lastYearProfitLoss:-60000,
+        profitLossNote:"品牌於113年1月成立，首季投入產品開發、檢驗及包裝設計成本較高，加上網路廣告測試期間轉換率尚在優化，帳列虧損60,000元。近2個月透過社群口碑帶動，月訂單量已由30筆成長至80筆。",
+        totalFunding:400000, selfFunding:150000, raisedFunding:0, friendLoan:50000, bankLoanExisting:0, otherFunding:0,
+        loanItems:[],
+        existingEquipment:[
+          {item:"皂化攪拌設備", note:"自有1組"},
+          {item:"包裝機（貼標）", note:"自有1台"}
+        ],
+        fundUse:[
+          {item:"原料及包材備貨（因應訂單成長）", amount:120000},
+          {item:"化妝品檢驗費用", amount:40000},
+          {item:"網路行銷推廣費", amount:40000}
+        ],
+        loanPurposeExplanation:"本貸款200,000元主要用於：（1）因應訂單量成長備足原料與包材庫存；（2）產品檢驗費用，確保各批次商品符合化妝品衛生安全法規；（3）網路行銷推廣，維持訂單成長動能。",
+        requestedLoanAmount:200000, loanPeriodYears:5,
+        bank:"first", bankBranch:"台南"
+      },
+      plan:{
+        productService:"服務內容：\n以天然植物油與植萃精油製作之手工皂、護手霜、洗髮露，強調無矽靈、無防腐劑添加，售價每件280-580元不等。\n\n產品送第三方檢驗合格並取得化妝品許可字號，主要透過官方網站及社群平台銷售。",
+        businessHours:"線上電商，24小時接單，出貨作業時間為週一至週五10:00-18:00。",
+        customerSource:"主要透過Instagram與社群平台經營累積客源，近2個月月訂單量由30筆成長至80筆，其中約4成為回購客。目前尚未上架第三方電商平台。",
+        coOperationNote:"",
+        targetMarketAnalysis:"目標客群為18-35歲重視天然成分、有敏感性肌膚困擾之消費者，定價定位為中價位天然保養品。\n\n擴大客源方式：\n1. 與美妝／保養類社群創作者合作體驗分享。\n2. 上架蝦皮、momo等第三方電商平台觸及更多潛在客群。\n\n競爭優勢：成分天然、通過第三方檢驗、包裝設計具品牌辨識度，並提供小樣試用降低嘗試門檻。",
+        marketOutlook:"天然保養品市場需求持續成長，尤其敏感肌保養需求逐年上升。未來3年計畫上架第三方電商平台並拓展實體通路（選品店、市集）合作。",
+        repayment:{year1_2NetProfit:150000, monthlyPrincipal1_2:3333, year3NetProfit:200000, interestRate:2.025, monthlyPayment3:3760},
+        profitBridgeExplanation:"目前虧損主因為品牌初期之檢驗與行銷投入，訂單量已進入成長軌道。貸款到位後可維持庫存充足並持續投放行銷，預估訂單量可持續成長，第1年可望轉虧為盈。",
+        autobiography:"本人30歲，單身。曾任職美妝電商公司行銷企劃3年餘，熟悉社群行銷與電商營運。113年1月創立自有保養品品牌，結合過往行銷經驗與對天然保養品的興趣。創業動機為希望打造自有品牌並累積長期事業，本次申貸主要用於備貨及行銷推廣，以承接目前成長中的訂單量。"
+      },
+      oath:{agree:false, signDate:""}
+    }
+  },
+
+  cleaning:{
+    label:"居家清潔服務（潔淨到府清潔服務）",
+    state:{
+      applicant:{
+        name:"李建宏", birthDate:"民國75年9月30日", idNumber:"G189012345",
+        phone:"", mobile:"0910456789", email:"demo05@example.com", fax:"",
+        maritalStatus:"married", spouseName:"陳雅琪", spouseId:"H290123456", spouseJob:"家管", spousePhone:"", spouseMobile:"",
+        householdAddress:"220046新北市板橋區文化路二段150號",
+        mailingAddress:"220046新北市板橋區文化路二段150號",
+        contacts:[{name:"李建成", relation:"哥哥", phone:"0933567890"}],
+        unemploymentPeriod:"1to6m", identityType:"general", otherIdentities:[], education:"senior",
+        experience:[
+          {company:"潔淨到府清潔服務", title:"負責人", startDate:"113年2月", endDate:"至今"},
+          {company:"某物業管理公司", title:"清潔領班", startDate:"106年4月", endDate:"113年1月"}
+        ],
+        training:[{institute:"新北市勞工局", field:"居家清潔創業班", startDate:"112年11月", endDate:"112年12月", cert:"結業證書"}]
+      },
+      business:{
+        name:"潔淨到府清潔服務", regType:"small", establishDate:"113年02月20日", taxId:"56789012",
+        isFranchise:"false", franchiseName:"", employeeCount:2,
+        regAddress:"220046新北市板橋區文化路二段150號", regPhone:"0910456789",
+        operateAddress:"220046新北市板橋區文化路二段150號", operatePhone:"0910456789",
+        factoryAddress:"", factoryPhone:"",
+        mainProducts:"居家到府清潔、地毯沙發清洗、退租清潔服務",
+        businessItems:"N701990 建築物清潔服務業"
+      },
+      finance:{
+        lastYearProfitLoss:30000,
+        profitLossNote:"本事業113年2月成立，目前團隊含本人共3人，因清潔設備仍以家用型為主，效率較低，單日可承接案件數受限，帳列淨利30,000元。近期詢問量增加，常需排隊等候2週以上才能安排到府服務。",
+        totalFunding:550000, selfFunding:250000, raisedFunding:0, friendLoan:0, bankLoanExisting:0, otherFunding:0,
+        loanItems:[
+          {type:"vehicle", name:"貨車貸款", amount:200000, purpose:"載運清潔設備交通車輛", monthlyPayment:5500, bank:""}
+        ],
+        existingEquipment:[
+          {item:"家用型吸塵器", note:"自有2台"},
+          {item:"高壓清洗機", note:"自有1台"}
+        ],
+        fundUse:[
+          {item:"商用級地毯沙發清洗機", amount:180000},
+          {item:"清潔用品耗材週轉金", amount:70000},
+          {item:"人員教育訓練費用", amount:50000}
+        ],
+        loanPurposeExplanation:"本貸款300,000元主要用於添購商用級地毯沙發清洗機以提升服務效率、補足清潔耗材週轉金，並投入人員教育訓練，以縮短目前2週以上的候約時間並提升服務品質。",
+        requestedLoanAmount:300000, loanPeriodYears:6,
+        bank:"tcb", bankBranch:"板橋"
+      },
+      plan:{
+        productService:"服務內容：\n提供居家到府清潔、地毯沙發深層清洗、退租清潔等服務，依坪數與服務項目計價，居家清潔每次1,500-3,000元，退租清潔另計。\n\n服務人員均受過標準作業流程訓練，並提供到府前拍照確認、完工後檢核表，強化服務透明度。",
+        businessHours:"週一至週六08:00-18:00，需提前預約，週日為機動加班時段。",
+        customerSource:"目前主要客源為板橋、新莊、三重地區之雙薪家庭與租屋族，透過Google商家評論、社群粉專及既有客戶轉介為主要客源管道，目前預約已需排隊等候2週以上。",
+        coOperationNote:"本事業由本人與配偶共同經營，配偶負責客服預約排程與帳務，本人負責現場服務團隊管理與品質把關。",
+        targetMarketAnalysis:"目標客群為新北市板橋、新莊、三重地區之雙薪家庭及租屋族，定價貼近市場行情，強調標準化作業流程與服務透明度。\n\n擴大客源方式：\n1. 經營Google商家與社群評論，累積口碑。\n2. 與房仲、租賃業者異業合作承接退租清潔案件。\n\n競爭優勢：標準化SOP、完工檢核表提升信任感，並提供固定班表之高頻回訪客戶優先預約。",
+        marketOutlook:"雙薪家庭與租屋族對居家清潔服務需求穩定成長。未來3年計畫視人力與設備狀況擴大服務範圍至鄰近行政區，並評估承接更多退租清潔案件。",
+        repayment:{year1_2NetProfit:220000, monthlyPrincipal1_2:4167, year3NetProfit:260000, interestRate:1.845, monthlyPayment3:4550},
+        profitBridgeExplanation:"目前受限於清潔設備效能與交通載具，單日可承接案件數已達上限，預約候補時間長達2週以上。貸款設備與車輛到位後預估可提升單日承接案件數並擴大服務範圍，故第1年淨利可望提升至22萬元左右。",
+        autobiography:"本人39歲，已婚，育有子女。曾任職物業管理公司清潔領班近7年，熟悉清潔作業標準與團隊管理。113年2月與配偶共同創業成立居家清潔服務，延續多年累積之作業經驗與服務口碑。創業動機為希望建立自有品牌並穩定家庭收入，本次申貸主要用於解決設備與載具產能瓶頸。"
+      },
+      oath:{agree:false, signDate:""}
+    }
+  }
+};
+
+const EMPTY_STATE = {
+  applicant:{name:"",birthDate:"",idNumber:"",phone:"",mobile:"",email:"",fax:"",
+    maritalStatus:"single",spouseName:"",spouseId:"",spouseJob:"",spousePhone:"",spouseMobile:"",
+    householdAddress:"",mailingAddress:"",contacts:[{name:"",relation:"",phone:""}],
+    unemploymentPeriod:"lt1m",identityType:"general",otherIdentities:[],education:"senior",
+    experience:[{company:"",title:"",startDate:"",endDate:""}],training:[]},
+  business:{name:"",regType:"company",establishDate:"",taxId:"",isFranchise:"false",franchiseName:"",
+    employeeCount:0,regAddress:"",regPhone:"",operateAddress:"",operatePhone:"",factoryAddress:"",factoryPhone:"",
+    mainProducts:"",businessItems:""},
+  finance:{lastYearProfitLoss:0,profitLossNote:"",totalFunding:0,selfFunding:0,raisedFunding:0,friendLoan:0,
+    bankLoanExisting:0,otherFunding:0,loanItems:[],existingEquipment:[{item:"",note:""}],fundUse:[{item:"",amount:0}],
+    loanPurposeExplanation:"",requestedLoanAmount:0,loanPeriodYears:7,bank:"first",bankBranch:""},
+  plan:{productService:"",businessHours:"",customerSource:"",coOperationNote:"",targetMarketAnalysis:"",
+    marketOutlook:"",repayment:{year1_2NetProfit:0,monthlyPrincipal1_2:0,year3NetProfit:0,interestRate:0,monthlyPayment3:0},
+    profitBridgeExplanation:"",autobiography:""},
+  oath:{agree:false,signDate:""}
+};
+
+const LOAN_TYPE_LABELS = {gov:"政府貸款", enterprise:"企業貸款", realestate:"不動產貸款", vehicle:"動產貸款",
+  credit:"一般信用貸款", cashcard:"現金卡貸款", creditcard:"信用卡未繳清", other:"其他"};
+
+const DEFAULT_SAMPLE_KEY = "breakfast";
+let state = loadState() || JSON.parse(JSON.stringify(SAMPLE_LIBRARY[DEFAULT_SAMPLE_KEY].state));
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem("phoenixLoanState");
+    return raw ? JSON.parse(raw) : null;
+  }catch(e){ return null; }
+}
+function saveState(){
+  localStorage.setItem("phoenixLoanState", JSON.stringify(state));
+}
+function getPath(obj, path){
+  return path.split(".").reduce((o,k)=> (o==null? undefined : o[k]), obj);
+}
+function setPath(obj, path, value){
+  const keys = path.split(".");
+  let o = obj;
+  for(let i=0;i<keys.length-1;i++){ o = o[keys[i]]; }
+  o[keys[keys.length-1]] = value;
+}
+
+/* ---------------- Tabs ---------------- */
+document.querySelectorAll("nav.tabs button").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll("section.tab").forEach(s=>s.classList.remove("active"));
+    btn.classList.add("active");
+    document.querySelector(`section.tab[data-tab="${btn.dataset.tab}"]`).classList.add("active");
+    if(btn.dataset.tab === "preview") renderPreview();
+  });
+});
+
+/* ---------------- Simple bound inputs (data-path) ---------------- */
+function bindSimpleInputs(root=document){
+  root.querySelectorAll("[data-path]").forEach(el=>{
+    if(el.dataset.bound) return;
+    el.dataset.bound = "1";
+    const path = el.dataset.path;
+    const val = getPath(state, path);
+    if(el.type === "checkbox"){
+      el.checked = !!val;
+      el.addEventListener("change", ()=>{ setPath(state, path, el.checked); saveState(); refreshDerived(); });
+    } else {
+      el.value = (val===undefined||val===null) ? "" : val;
+      const evt = (el.tagName==="SELECT") ? "change" : "input";
+      el.addEventListener(evt, ()=>{
+        let v = el.value;
+        if(el.type === "number") v = v===""? 0 : parseFloat(v);
+        setPath(state, path, v);
+        saveState();
+        refreshDerived();
+      });
+    }
+  });
+}
+
+/* ---------------- Marital status radio ---------------- */
+function renderMaritalRadio(){
+  const box = document.getElementById("maritalRadio");
+  box.innerHTML = `
+    <label><input type="radio" name="marital" value="single"> 單身</label>
+    <label><input type="radio" name="marital" value="married"> 已婚</label>
+  `;
+  box.querySelectorAll("input").forEach(r=>{
+    r.checked = (r.value === state.applicant.maritalStatus);
+    r.addEventListener("change", ()=>{
+      state.applicant.maritalStatus = r.value;
+      saveState();
+      toggleSpouseFields();
+    });
+  });
+  toggleSpouseFields();
+}
+function toggleSpouseFields(){
+  document.getElementById("spouseFields").style.display =
+    (state.applicant.maritalStatus === "married") ? "grid" : "none";
+}
+
+/* ---------------- Other identities checkboxes ---------------- */
+const OTHER_IDENTITY_OPTIONS = [
+  ["indigenous","原住民"],["disability","身心障礙者"],["rehabilitated","更生受保護人"],
+  ["cross_strait_spouse","大陸港澳配偶"],["foreign_spouse","外籍配偶"],["trade_liberalization","受貿易自由化影響勞工"]
+];
+function renderOtherIdentities(){
+  const box = document.getElementById("otherIdentitiesBox");
+  box.innerHTML = OTHER_IDENTITY_OPTIONS.map(([v,l])=>
+    `<label><input type="checkbox" value="${v}"> ${l}</label>`).join("");
+  box.querySelectorAll("input").forEach(cb=>{
+    cb.checked = state.applicant.otherIdentities.includes(cb.value);
+    cb.addEventListener("change", ()=>{
+      const list = state.applicant.otherIdentities;
+      const idx = list.indexOf(cb.value);
+      if(cb.checked && idx===-1) list.push(cb.value);
+      if(!cb.checked && idx>-1) list.splice(idx,1);
+      saveState();
+    });
+  });
+}
+
+/* ---------------- Generic list editors ---------------- */
+function renderListEditor(containerId, arrPath, fieldsDef, addBtnId){
+  const container = document.getElementById(containerId);
+  const arr = getPath(state, arrPath);
+  container.innerHTML = "";
+  arr.forEach((row, idx)=>{
+    const rowEl = document.createElement("div");
+    rowEl.className = "list-row";
+    fieldsDef.forEach(f=>{
+      const fieldEl = document.createElement("div");
+      fieldEl.className = "field";
+      const label = document.createElement("label");
+      label.textContent = f.label;
+      fieldEl.appendChild(label);
+      let input;
+      if(f.type === "select"){
+        input = document.createElement("select");
+        f.options.forEach(([v,l])=>{
+          const opt = document.createElement("option");
+          opt.value=v; opt.textContent=l;
+          input.appendChild(opt);
+        });
+        input.value = row[f.key] ?? f.options[0][0];
+      } else {
+        input = document.createElement("input");
+        input.type = f.type || "text";
+        input.value = row[f.key] ?? (f.type==="number" ? 0 : "");
+      }
+      input.addEventListener(f.type==="select"?"change":"input", ()=>{
+        row[f.key] = f.type==="number" ? (input.value===""?0:parseFloat(input.value)) : input.value;
+        saveState();
+        refreshDerived();
+      });
+      fieldEl.appendChild(input);
+      rowEl.appendChild(fieldEl);
+    });
+    const delBtn = document.createElement("button");
+    delBtn.textContent = "刪除";
+    delBtn.addEventListener("click", ()=>{
+      arr.splice(idx,1);
+      saveState();
+      renderListEditor(containerId, arrPath, fieldsDef, addBtnId);
+      refreshDerived();
+    });
+    rowEl.appendChild(delBtn);
+    container.appendChild(rowEl);
+  });
+}
+
+const LIST_CONFIGS = [
+  { container:"contactsList", path:"applicant.contacts", addBtn:"addContact",
+    newRow:()=>({name:"",relation:"",phone:""}),
+    fields:[
+      {key:"name", label:"姓名", type:"text"},
+      {key:"relation", label:"關係", type:"text"},
+      {key:"phone", label:"聯絡電話", type:"text"}
+    ]},
+  { container:"experienceList", path:"applicant.experience", addBtn:"addExperience",
+    newRow:()=>({company:"",title:"",startDate:"",endDate:""}),
+    fields:[
+      {key:"company", label:"服務處所名稱", type:"text"},
+      {key:"title", label:"職稱", type:"text"},
+      {key:"startDate", label:"到職日期", type:"text"},
+      {key:"endDate", label:"離職日期", type:"text"}
+    ]},
+  { container:"trainingList", path:"applicant.training", addBtn:"addTraining",
+    newRow:()=>({institute:"",field:"",startDate:"",endDate:"",cert:""}),
+    fields:[
+      {key:"institute", label:"訓練機構名稱", type:"text"},
+      {key:"field", label:"職類", type:"text"},
+      {key:"startDate", label:"開訓日期", type:"text"},
+      {key:"endDate", label:"結訓日期", type:"text"},
+      {key:"cert", label:"證明文件", type:"text"}
+    ]},
+  { container:"loanItemsList", path:"finance.loanItems", addBtn:"addLoanItem",
+    newRow:()=>({type:"gov",name:"",amount:0,purpose:"",monthlyPayment:0,bank:""}),
+    fields:[
+      {key:"type", label:"類別", type:"select", options:Object.entries(LOAN_TYPE_LABELS)},
+      {key:"name", label:"貸款名稱", type:"text"},
+      {key:"amount", label:"金額（元）", type:"number"},
+      {key:"purpose", label:"用途", type:"text"},
+      {key:"monthlyPayment", label:"月還金額（元）", type:"number"},
+      {key:"bank", label:"承貸銀行／分行", type:"text"}
+    ]},
+  { container:"equipmentList", path:"finance.existingEquipment", addBtn:"addEquipment",
+    newRow:()=>({item:"",note:""}),
+    fields:[
+      {key:"item", label:"項目（如冷凍櫃、貨車、存貨…）", type:"text"},
+      {key:"note", label:"數量／估值／備註", type:"text"}
+    ]},
+  { container:"fundUseList", path:"finance.fundUse", addBtn:"addFundUse",
+    newRow:()=>({item:"",amount:0}),
+    fields:[
+      {key:"item", label:"用途項目", type:"text"},
+      {key:"amount", label:"金額（元）", type:"number"}
+    ]}
+];
+
+function initListEditors(){
+  LIST_CONFIGS.forEach(cfg=>{
+    renderListEditor(cfg.container, cfg.path, cfg.fields, cfg.addBtn);
+    document.getElementById(cfg.addBtn).addEventListener("click", ()=>{
+      getPath(state, cfg.path).push(cfg.newRow());
+      saveState();
+      renderListEditor(cfg.container, cfg.path, cfg.fields, cfg.addBtn);
+      refreshDerived();
+    });
+  });
+}
+
+/* ---------------- Derived / consistency checks ---------------- */
+function fmt(n){
+  n = Number(n)||0;
+  return n.toLocaleString("zh-Hant-TW");
+}
+function refreshDerived(){
+  const f = state.finance;
+  const needed = (f.totalFunding||0) - (f.selfFunding||0) - (f.raisedFunding||0) - (f.friendLoan||0) - (f.bankLoanExisting||0) - (f.otherFunding||0);
+  const neededEl = document.getElementById("neededFundingCheck");
+  if(neededEl){
+    neededEl.textContent = `⑥尚需資金總額 = ${fmt(needed)} 元　（＝資金總額 - 自備 - 標會 - 親友借款 - 金融機構貸款 - 其他）`;
+    neededEl.className = "sum-check ok";
+  }
+  const fundUseSum = (f.fundUse||[]).reduce((s,r)=>s+(Number(r.amount)||0),0);
+  const fundUseEl = document.getElementById("fundUseCheck");
+  if(fundUseEl){
+    const match = Math.abs(fundUseSum - needed) < 1;
+    fundUseEl.textContent = match
+      ? `✓ 資金用途明細加總 ${fmt(fundUseSum)} 元，與尚需資金總額相符`
+      : `⚠ 資金用途明細加總 ${fmt(fundUseSum)} 元，與尚需資金總額 ${fmt(needed)} 元不相符，請調整`;
+    fundUseEl.className = "sum-check " + (match ? "ok" : "bad");
+  }
+}
+
+/* ---------------- Preview rendering ---------------- */
+const MARITAL_LABEL = {single:"單身", married:"已婚"};
+const REGTYPE_LABEL = {company:"公司登記", business:"商業登記", license:"立案登記", small:"免申請商業登記之小規模商業"};
+const UNEMP_LABEL = {lt1m:"未滿1個月", "1to6m":"1個月以上至未滿6個月", "6mto1y":"6個月以上至未滿1年", "1to3y":"1年以上至未滿3年", gt3y:"3年以上"};
+const IDENTITY_LABEL = {general:"一般身分", special_family:"特殊境遇家庭", domestic_violence:"家庭暴力被害人", occupational_injury:"職災戶", crime_victim:"犯罪被害人", low_income:"低收入戶", disaster:"災害受災者", sole_provider:"獨力負擔家計者"};
+const EDU_LABEL = {elementary:"國小及以下", junior:"國中", senior:"高中職", college:"專科", university:"大學", graduate:"碩士及以上"};
+const OTHER_ID_LABEL = Object.fromEntries(OTHER_IDENTITY_OPTIONS);
+const BANK_LABEL = {taiwan:"臺灣銀行", land:"臺灣土地銀行", sme:"臺灣中小企業銀行", tcb:"合作金庫商業銀行", first:"第一商業銀行", changhwa:"彰化商業銀行", hncb:"華南商業銀行"};
+
+function nl2br(s){
+  return (s||"").toString().split("\n").map(l=>l.trim()).filter(l=>l.length).map(l=>`<p>${escapeHtml(l)}</p>`).join("") || `<p class="placeholder">（尚未填寫）</p>`;
+}
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function orPlaceholder(v){
+  return (v===undefined||v===null||v==="") ? `<span class="placeholder">（尚未填寫）</span>` : escapeHtml(String(v));
+}
+
+function renderPreview(){
+  const a = state.applicant, b = state.business, f = state.finance, p = state.plan, o = state.oath;
+  const needed = (f.totalFunding||0) - (f.selfFunding||0) - (f.raisedFunding||0) - (f.friendLoan||0) - (f.bankLoanExisting||0) - (f.otherFunding||0);
+
+  const contactsHtml = a.contacts.map((c,i)=>`親友${i+1}：姓名：${orPlaceholder(c.name)}，關係：${orPlaceholder(c.relation)}，聯絡電話：${orPlaceholder(c.phone)}`).join("<br>");
+  const experienceRows = a.experience.map(e=>`<tr><td>${orPlaceholder(e.company)}</td><td>${orPlaceholder(e.title)}</td><td>${orPlaceholder(e.startDate)}</td><td>${orPlaceholder(e.endDate)}</td></tr>`).join("");
+  const trainingRows = a.training.length
+    ? a.training.map(t=>`<tr><td>${orPlaceholder(t.institute)}</td><td>${orPlaceholder(t.field)}</td><td>${orPlaceholder(t.startDate)}</td><td>${orPlaceholder(t.endDate)}</td><td>${orPlaceholder(t.cert)}</td></tr>`).join("")
+    : `<tr><td colspan="5">無</td></tr>`;
+  const otherIdText = a.otherIdentities.length ? a.otherIdentities.map(v=>OTHER_ID_LABEL[v]).join("、") : "無";
+
+  const loanItemsRows = f.loanItems.length
+    ? f.loanItems.map(l=>`<tr><td>${LOAN_TYPE_LABELS[l.type]||l.type}</td><td>${orPlaceholder(l.name)}</td><td>${fmt(l.amount)} 元</td><td>${orPlaceholder(l.purpose)}</td><td>${fmt(l.monthlyPayment)} 元</td><td>${orPlaceholder(l.bank)}</td></tr>`).join("")
+    : `<tr><td colspan="6">無借（貸）款</td></tr>`;
+
+  const equipmentRows = (f.existingEquipment||[]).filter(e=>e.item).length
+    ? f.existingEquipment.filter(e=>e.item).map(e=>`<tr><td>${orPlaceholder(e.item)}</td><td>${orPlaceholder(e.note)}</td></tr>`).join("")
+    : `<tr><td colspan="2"><span class="placeholder">（尚未填寫——此欄常是補件通知的原因，請務必填寫）</span></td></tr>`;
+
+  const fundUseRows = (f.fundUse||[]).filter(u=>u.item).length
+    ? f.fundUse.filter(u=>u.item).map(u=>`<tr><td>${orPlaceholder(u.item)}</td><td>${fmt(u.amount)} 元</td></tr>`).join("")
+    : `<tr><td colspan="2"><span class="placeholder">（尚未填寫——請拆列具體用途項目）</span></td></tr>`;
+  const fundUseSum = (f.fundUse||[]).reduce((s,r)=>s+(Number(r.amount)||0),0);
+
+  const html = `
+    <h2 class="doc-title">微型創業鳳凰貸款　申請書</h2>
+    <p style="text-align:center;color:var(--muted);font-size:.8rem;">申請人：${orPlaceholder(a.name)}　所營事業：${orPlaceholder(b.name)}</p>
+
+    <h3 class="section-title">壹、申請人基本資料</h3>
+    <table>
+      <tr><th>姓名</th><td>${orPlaceholder(a.name)}</td><th>出生年月日</th><td>${orPlaceholder(a.birthDate)}</td></tr>
+      <tr><th>身分證統一編號</th><td>${orPlaceholder(a.idNumber)}</td><th>聯絡電話／手機</th><td>${orPlaceholder(a.phone)} / ${orPlaceholder(a.mobile)}</td></tr>
+      <tr><th>e-mail</th><td>${orPlaceholder(a.email)}</td><th>傳真</th><td>${orPlaceholder(a.fax)}</td></tr>
+      <tr><th>婚姻狀況</th><td colspan="3">${MARITAL_LABEL[a.maritalStatus]}${a.maritalStatus==="married"? `（配偶：${orPlaceholder(a.spouseName)}，身分證：${orPlaceholder(a.spouseId)}，職業：${orPlaceholder(a.spouseJob)}，手機：${orPlaceholder(a.spouseMobile)}）` : ""}</td></tr>
+      <tr><th>戶籍地址</th><td colspan="3">${orPlaceholder(a.householdAddress)}</td></tr>
+      <tr><th>通訊地址</th><td colspan="3">${orPlaceholder(a.mailingAddress)}</td></tr>
+      <tr><th>聯絡親友</th><td colspan="3">${contactsHtml || '<span class="placeholder">（尚未填寫）</span>'}</td></tr>
+      <tr><th>最近一次失業週期</th><td>${UNEMP_LABEL[a.unemploymentPeriod]}</td><th>身分別</th><td>${IDENTITY_LABEL[a.identityType]}</td></tr>
+      <tr><th>其他身分別</th><td>${otherIdText}</td><th>教育程度</th><td>${EDU_LABEL[a.education]}</td></tr>
+    </table>
+    <table>
+      <tr><th colspan="4">經歷（時間近者在前）</th></tr>
+      <tr><th>服務處所</th><th>職稱</th><th>到職日期</th><th>離職日期</th></tr>
+      ${experienceRows || '<tr><td colspan="4">無</td></tr>'}
+    </table>
+    <table>
+      <tr><th colspan="5">職業訓練</th></tr>
+      <tr><th>訓練機構</th><th>職類</th><th>開訓日期</th><th>結訓日期</th><th>證明文件</th></tr>
+      ${trainingRows}
+    </table>
+
+    <h3 class="section-title">貳、所營事業資料</h3>
+    <table>
+      <tr><th>事業名稱</th><td colspan="3">${orPlaceholder(b.name)}</td></tr>
+      <tr><th>登記類型</th><td>${REGTYPE_LABEL[b.regType]}</td><th>設立日期</th><td>${orPlaceholder(b.establishDate)}</td></tr>
+      <tr><th>統一編號／立案編號</th><td>${orPlaceholder(b.taxId)}</td><th>加盟事業</th><td>${b.isFranchise==="true" ? `是（${orPlaceholder(b.franchiseName)}）` : "否"}</td></tr>
+      <tr><th>事業登記地址</th><td colspan="3">${orPlaceholder(b.regAddress)}　電話：${orPlaceholder(b.regPhone)}</td></tr>
+      <tr><th>營運地址／店面</th><td colspan="3">${orPlaceholder(b.operateAddress)}　電話：${orPlaceholder(b.operatePhone)}</td></tr>
+      <tr><th>工廠／倉庫</th><td colspan="3">${b.factoryAddress ? escapeHtml(b.factoryAddress) + "　電話：" + orPlaceholder(b.factoryPhone) : "同上／無"}</td></tr>
+      <tr><th>主要產品（或業務）</th><td>${orPlaceholder(b.mainProducts)}</td><th>員工人數（不含負責人）</th><td>${fmt(b.employeeCount)} 人</td></tr>
+      <tr><th>營業項目</th><td colspan="3">${orPlaceholder(b.businessItems)}</td></tr>
+    </table>
+
+    <h3 class="section-title">參、財務分析與資金計畫</h3>
+    <table>
+      <tr><th>申貸前1年營業損益</th><td>${f.lastYearProfitLoss<0? `虧損 ${fmt(Math.abs(f.lastYearProfitLoss))} 元` : `獲利 ${fmt(f.lastYearProfitLoss)} 元`}</td></tr>
+      <tr><th>損益說明</th><td>${nl2br(f.profitLossNote)}</td></tr>
+    </table>
+    <table>
+      <tr><th>本計畫資金總額</th><td>${fmt(f.totalFunding)} 元</td><th>①自備金額</th><td>${fmt(f.selfFunding)} 元</td></tr>
+      <tr><th>②標會金額</th><td>${fmt(f.raisedFunding)} 元</td><th>③親友借款</th><td>${fmt(f.friendLoan)} 元</td></tr>
+      <tr><th>④金融機構貸款</th><td>${fmt(f.bankLoanExisting)} 元</td><th>⑤其他資金</th><td>${fmt(f.otherFunding)} 元</td></tr>
+      <tr><th>⑥尚需資金總額</th><td colspan="3"><strong>${fmt(needed)} 元</strong></td></tr>
+    </table>
+    <table>
+      <tr><th colspan="6">個人及所營事業借（貸）款情況</th></tr>
+      <tr><th>類別</th><th>名稱</th><th>金額</th><th>用途</th><th>月還金額</th><th>承貸銀行／分行</th></tr>
+      ${loanItemsRows}
+    </table>
+    <table>
+      <tr><th colspan="2">現有設備（如器具、設備、存貨）</th></tr>
+      <tr><th>項目</th><th>數量／估值／備註</th></tr>
+      ${equipmentRows}
+    </table>
+    <table>
+      <tr><th colspan="2">尚需資金用途明細（加總：${fmt(fundUseSum)} 元）</th></tr>
+      <tr><th>用途項目</th><th>金額</th></tr>
+      ${fundUseRows}
+    </table>
+    <table>
+      <tr><th>貸款用途及效益說明</th><td>${nl2br(f.loanPurposeExplanation)}</td></tr>
+      <tr><th>申請貸款金額</th><td>新臺幣 ${fmt(f.requestedLoanAmount)} 元整</td></tr>
+      <tr><th>貸款期間</th><td>${fmt(f.loanPeriodYears)} 年</td></tr>
+      <tr><th>申請貸款銀行</th><td>${BANK_LABEL[f.bank]}　${orPlaceholder(f.bankBranch)} 分行</td></tr>
+    </table>
+
+    <h3 class="section-title">肆、創業貸款計畫書</h3>
+    <p><strong>一、經營現況</strong></p>
+    <p>（一）產品或服務內容、主要用途、功能、特點及售價</p>
+    ${nl2br(p.productService)}
+    <p>（二）營業時間、尖峰時段、人潮特性</p>
+    ${nl2br(p.businessHours)}
+    <p>（三）現有或潛在客源／訂單</p>
+    ${nl2br(p.customerSource)}
+    <p>（四）與他人共同經營及具體分工說明</p>
+    ${p.coOperationNote ? nl2br(p.coOperationNote) : "<p>無共同經營者，免填。</p>"}
+
+    <p><strong>二、市場分析</strong></p>
+    <p>（一）目標市場、定價、銷售方式、如何擴大客源、競爭優勢</p>
+    ${nl2br(p.targetMarketAnalysis)}
+    <p>（二）市場潛力及未來3年展望</p>
+    ${nl2br(p.marketOutlook)}
+
+    <p><strong>三、償貸計畫</strong></p>
+    <table>
+      <tr><th>第1、2年預估淨利</th><td>${fmt(p.repayment.year1_2NetProfit)} 元</td><th>每月攤還本金</th><td>${fmt(p.repayment.monthlyPrincipal1_2)} 元</td></tr>
+      <tr><th>第3年起預估淨利</th><td>${fmt(p.repayment.year3NetProfit)} 元</td><th>每月攤還本息（利率${p.repayment.interestRate}%）</th><td>${fmt(p.repayment.monthlyPayment3)} 元</td></tr>
+    </table>
+    <p>獲利轉正說明：</p>
+    ${nl2br(p.profitBridgeExplanation)}
+
+    <p><strong>四、自傳簡述（含創業動機）</strong></p>
+    ${nl2br(p.autobiography)}
+
+    <h3 class="section-title">伍、切結書</h3>
+    <p>具結人 ${orPlaceholder(a.name)} 為申請「微型創業鳳凰貸款」，經詳閱本貸款相關規定，切結同意完全遵守要點所載各款事項。</p>
+    <p>${o.agree ? "☑" : "☐"} 本人已詳閱、瞭解並同意上述各款事項</p>
+    <div class="signature-line">
+      <span>具結人：${orPlaceholder(a.name)}（簽名或蓋章）</span>
+      <span>身分證統一編號：${orPlaceholder(a.idNumber)}</span>
+    </div>
+    <div class="signature-line">
+      <span>住址：${orPlaceholder(a.mailingAddress)}</span>
+      <span>中華民國 ${orPlaceholder(o.signDate)}</span>
+    </div>
+  `;
+  document.getElementById("preview").innerHTML = html;
+}
+
+/* ---------------- Import: file text extraction ---------------- */
+async function extractDocxText(arrayBuffer){
+  const data = new Uint8Array(arrayBuffer);
+  const dv = new DataView(arrayBuffer);
+  // 找 End of Central Directory（從檔尾往回掃）
+  let eocd = -1;
+  const scanEnd = Math.max(0, data.length - 22 - 65536);
+  for(let i = data.length - 22; i >= scanEnd; i--){
+    if(data[i]===0x50 && data[i+1]===0x4b && data[i+2]===0x05 && data[i+3]===0x06){ eocd = i; break; }
+  }
+  if(eocd < 0) throw new Error("不是有效的 docx（zip）檔案");
+  const count = dv.getUint16(eocd+10, true);
+  let p = dv.getUint32(eocd+16, true);
+  let entry = null;
+  for(let i=0; i<count; i++){
+    if(dv.getUint32(p, true) !== 0x02014b50) break;
+    const method = dv.getUint16(p+10, true);
+    const csize = dv.getUint32(p+20, true);
+    const nameLen = dv.getUint16(p+28, true);
+    const extraLen = dv.getUint16(p+30, true);
+    const cmtLen = dv.getUint16(p+32, true);
+    const lho = dv.getUint32(p+42, true);
+    const name = new TextDecoder().decode(data.subarray(p+46, p+46+nameLen));
+    if(name === "word/document.xml"){ entry = {method, csize, lho}; break; }
+    p += 46 + nameLen + extraLen + cmtLen;
+  }
+  if(!entry) throw new Error("docx 內找不到 word/document.xml");
+  const lNameLen = dv.getUint16(entry.lho+26, true);
+  const lExtraLen = dv.getUint16(entry.lho+28, true);
+  const start = entry.lho + 30 + lNameLen + lExtraLen;
+  const comp = data.subarray(start, start + entry.csize);
+  let xmlBytes;
+  if(entry.method === 0){
+    xmlBytes = comp;
+  } else if(entry.method === 8){
+    const stream = new Blob([comp]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+    xmlBytes = new Uint8Array(await new Response(stream).arrayBuffer());
+  } else {
+    throw new Error("不支援的 zip 壓縮方式：" + entry.method);
+  }
+  return docxXmlToText(new TextDecoder().decode(xmlBytes));
+}
+function docxXmlToText(xml){
+  let s = xml
+    .replace(/<w:tab[^>]*\/>/g, "\t")
+    .replace(/<w:br[^>]*\/>/g, "\n")
+    .replace(/<\/w:tc>/g, " | ")
+    .replace(/<\/w:p>/g, "\n");
+  s = s.replace(/<[^>]+>/g, "");
+  s = s.replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">")
+       .replace(/&quot;/g,'"').replace(/&apos;/g,"'")
+       .replace(/&#(\d+);/g, (m,d)=>String.fromCodePoint(parseInt(d,10)));
+  // 儲存格結尾的段落換行會落在「|」分隔符前，收斂成同一行，label 與值才能對上
+  s = s.replace(/\n+(\s*\|)/g, "$1");
+  return s;
+}
+function loadScript(src){
+  return new Promise((resolve,reject)=>{
+    const s=document.createElement("script");
+    s.src=src; s.onload=resolve;
+    s.onerror=()=>reject(new Error("外部程式庫載入失敗（需要網路連線才能解析 PDF）"));
+    document.head.appendChild(s);
+  });
+}
+async function extractPdfText(arrayBuffer){
+  if(!window.pdfjsLib){
+    await loadScript("https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js");
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
+  }
+  const pdf = await pdfjsLib.getDocument({data:arrayBuffer}).promise;
+  let out = "";
+  for(let i=1; i<=pdf.numPages; i++){
+    const page = await pdf.getPage(i);
+    const tc = await page.getTextContent();
+    let last = null;
+    for(const item of tc.items){
+      if(!item.str) continue;
+      const y = item.transform[5], x = item.transform[4];
+      if(last !== null){
+        if(Math.abs(y - last.y) > 2){
+          out += "\n";
+        } else {
+          // 同一行：水平間距大代表跨表格欄位，補上「|」分隔符，讓 label 與值能像 docx 一樣對應
+          const gap = x - last.xEnd;
+          if(gap > 12) out += " | ";
+          else if(gap > 1) out += " ";
+        }
+      }
+      out += item.str;
+      last = {y, xEnd: x + (item.width || 0)};
+    }
+    out += "\n";
+  }
+  if(out.replace(/\s/g,"").length < 50){
+    throw new Error("PDF 幾乎沒有可讀取的文字，可能是掃描影像檔——請改用原始 Word（docx）檔，或先做 OCR。");
+  }
+  return out;
+}
+
+/* ---------------- Import: 申請書欄位辨識 ---------------- */
+function parseNum(s){
+  const n = parseInt(String(s).replace(/[,，\s]/g,""), 10);
+  return isNaN(n) ? null : n;
+}
+function sliceBetween(text, startRe, endRe){
+  const m = text.match(startRe);
+  if(!m) return "";
+  const rest = text.slice(m.index + m[0].length);
+  const e = endRe ? rest.match(endRe) : null;
+  return (e ? rest.slice(0, e.index) : rest);
+}
+function cleanBlock(s){
+  return s.replace(/\s*\|\s*/g, "\n")
+    .split("\n").map(l=>l.trim())
+    .filter(l=>l && !/^※/.test(l))
+    .join("\n").replace(/\n{3,}/g,"\n\n").trim();
+}
+const CHECK = "[■☑✓✔ＶｖV●▓◼☒]";  // 已勾選記號（涵蓋常見的手動打勾方式）
+function parseApplication(text){
+  const report = [];
+  const st = JSON.parse(JSON.stringify(EMPTY_STATE));
+  const found = (label, value)=>{ report.push({label, ok:true, value}); };
+  const miss  = (label)=>{ report.push({label, ok:false}); };
+  const grab = (re, idx=1)=>{ const m = text.match(re); return m ? (m[idx]||"").trim() : ""; };
+  // PDF 的表格值常在儲存格內折行、字間插空白，因此另備一份「壓平」文本（去除所有空白/換行/分隔符）
+  // 作為備援層；值的結尾改用內容錨點（號/樓、日期對、下一個標籤）界定
+  const flat = text.replace(/[\s|]+/g, "");
+  const grabF = (re, idx=1)=>{ const m = flat.match(re); return m ? (m[idx]||"").trim() : ""; };
+  const cityRe = "(?:臺北市|台北市|新北市|桃園市|臺中市|台中市|臺南市|台南市|高雄市|基隆市|新竹市|嘉義市|新竹縣|苗栗縣|彰化縣|南投縣|雲林縣|嘉義縣|屏東縣|宜蘭縣|花蓮縣|臺東縣|台東縣|澎湖縣|金門縣|連江縣)";
+  const addrFlat = "((?:\\d{3,6})?" + cityRe + "[一-龥0-9－.-]{2,35}?\\d*(?:之\\d+)?號(?:之\\d+)?(?:\\d{1,3}樓)?(?:之\\d+)?)";
+
+  /* --- 申請人 --- */
+  let name = grab(/申請人姓名[：:]\s*([一-龥·]{2,4})(?=[\s|]|所營|$)/)      // 檢核表首頁的「申請人姓名：Ｘ」
+          || grab(/（\s*負責人\s*）[^|]*\|\s*([一-龥·]{2,4})\s*(?:\||\n)/)
+          || grab(/申請人姓名[\s\S]{0,20}?\|\s*([一-龥·]{2,4})\s*(?:\||\n)/)
+          || grab(/具結人[\s|：:]*([一-龥·]{2,4})\s*為申請/);
+  if(["負責人","申請人","出生年"].includes(name)) name = "";
+  name ? (st.applicant.name = name, found("申請人姓名", name)) : miss("申請人姓名");
+
+  const birth = grab(/出生年月日[\s\S]{0,40}?(民國\s*\d{1,3}\s*年\s*\d{1,2}\s*月\s*\d{1,2}\s*日)/);
+  birth ? (st.applicant.birthDate = birth.replace(/\s+/g,""), found("出生年月日", birth)) : miss("出生年月日");
+
+  const ids = text.match(/[A-Z][12]\d{8}/g) || [];
+  if(ids.length){ st.applicant.idNumber = ids[0]; found("身分證字號", ids[0]); } else miss("身分證字號");
+  const spouseId = grab(/配偶[\s\S]{0,60}?([A-Z][12]\d{8})/);
+  if(spouseId && spouseId !== st.applicant.idNumber){ st.applicant.spouseId = spouseId; }
+
+  const mobiles = text.match(/09\d{8}/g) || [];
+  if(mobiles.length){ st.applicant.mobile = mobiles[0]; st.applicant.phone = mobiles[0]; found("手機", mobiles[0]); } else miss("手機");
+
+  const email = grab(/([\w.+-]+@[\w-]+\.[\w.-]+)/);
+  email ? (st.applicant.email = email, found("e-mail", email)) : miss("e-mail");
+
+  // 配偶姓名常和下一個標籤連在一起（如「王俞惠國民身分證統一編號」），用 lookahead 斷開
+  const spouseNameRe = /配偶姓名[：:＿_]*([一-龥·]{2,4}?)(?=國民|身分證|[^一-龥·]|$)/;
+  const spouseName = grab(spouseNameRe) || grabF(spouseNameRe);
+  if(new RegExp(CHECK+"\\s*已婚").test(text) || spouseName){
+    st.applicant.maritalStatus = "married";
+    found("婚姻狀況", "已婚");
+    if(spouseName) st.applicant.spouseName = spouseName;
+    const sj = grab(/配偶[\s\S]{0,150}?職業[：:＿_\s]*([一-龥A-Za-z]{1,8})/) || grabF(/配偶[\s\S]{0,150}?職業[：:＿_]*([一-龥A-Za-z]{1,8})/);
+    if(sj) st.applicant.spouseJob = sj;
+    const sm = grab(/配偶[\s\S]{0,220}?手機[：:＿_\s]*(09\d{8})/) || grabF(/配偶[\s\S]{0,220}?手機[：:＿_]*(09\d{8})/);
+    if(sm) st.applicant.spouseMobile = sm;
+  } else if(new RegExp(CHECK+"\\s*單身").test(text)){
+    st.applicant.maritalStatus = "single";
+    found("婚姻狀況", "單身");
+  } else miss("婚姻狀況");
+
+  const addrRe = "((?:\\d{3,6})?(?:臺北市|台北市|新北市|桃園市|臺中市|台中市|臺南市|台南市|高雄市|基隆市|新竹市|嘉義市|新竹縣|苗栗縣|彰化縣|南投縣|雲林縣|嘉義縣|屏東縣|宜蘭縣|花蓮縣|臺東縣|台東縣|澎湖縣|金門縣|連江縣)[^\\n|]{4,40})";
+  const hAddr = grab(new RegExp("戶籍地址[\\s|：:]*" + addrRe)) || grabF(new RegExp("戶籍地址[：:]?" + addrFlat));
+  hAddr ? (st.applicant.householdAddress = hAddr.trim(), found("戶籍地址", hAddr)) : miss("戶籍地址");
+  const mAddr = grab(new RegExp("通訊地址[\\s|：:]*" + addrRe)) || grabF(new RegExp("通訊地址[：:]?" + addrFlat));
+  st.applicant.mailingAddress = mAddr ? mAddr.trim() : st.applicant.householdAddress;
+  mAddr ? found("通訊地址", mAddr) : miss("通訊地址");
+
+  const contacts = [];
+  const cRe = /姓名[：:]\s*([一-龥·]{2,4})\s*[，,]?\s*關係[：:]\s*([一-龥]{1,6})\s*[，,]?\s*聯絡電話[：:]\s*(0\d{8,9})/g;
+  let cm;
+  while((cm = cRe.exec(text)) !== null){
+    contacts.push({name:cm[1], relation:cm[2], phone:cm[3]});
+  }
+  if(!contacts.length){
+    // PDF 備援：姓名/電話可能被折行切斷，用壓平文本再掃一次
+    const cFlatRe = /姓名[：:]([一-龥·]{2,4})[，,]?關係[：:]([一-龥]{1,6})[，,]?聯絡電話[：:](0\d{8,9})/g;
+    while((cm = cFlatRe.exec(flat)) !== null){
+      contacts.push({name:cm[1], relation:cm[2], phone:cm[3]});
+    }
+  }
+  if(contacts.length){ st.applicant.contacts = contacts; found("聯絡親友", contacts.length + " 位"); } else miss("聯絡親友");
+
+  const unempMap = [["未滿1個月","lt1m"],["1個月以上至未滿6個月","1to6m"],["6個月以上至未滿1年","6mto1y"],["1年以上至未滿3年","1to3y"],["3年以上","gt3y"]];
+  for(const [label,key] of unempMap){
+    if(new RegExp(CHECK+"\\s*"+label).test(text)){ st.applicant.unemploymentPeriod = key; found("失業週期", label); break; }
+  }
+  const identMap = [["一般身分","general"],["特殊境遇家庭","special_family"],["家庭暴力被害人","domestic_violence"],["職災戶","occupational_injury"],["犯罪被害人","crime_victim"],["低收入戶","low_income"],["災害受災者","disaster"],["獨力負擔家計者","sole_provider"]];
+  for(const [label,key] of identMap){
+    if(new RegExp(CHECK+"\\s*\\d?\\.?\\s*"+label).test(text)){ st.applicant.identityType = key; found("身分別", label); break; }
+  }
+  const eduMap = [["國小及以下","elementary"],["國中","junior"],["高中職","senior"],["專科","college"],["大學","university"],["碩士及以上","graduate"]];
+  for(const [label,key] of eduMap){
+    if(new RegExp(CHECK+"\\s*"+label).test(text)){ st.applicant.education = key; found("教育程度", label); break; }
+  }
+
+  const expSlice = sliceBetween(text, /經歷/, /職業訓練/);
+  const expRows = [];
+  const expRe = /([^\s|]{2,20}(?:公司|商行|工作室|企業社|事務所|診所|門市|中心|店|館|廠|行|社))\s*\|\s*([^\s|]{2,12})\s*\|\s*(\d{1,3}年\s*\d{1,2}月)\s*\|\s*(至今|\d{1,3}年\s*\d{1,2}月)/g;
+  let em;
+  while((em = expRe.exec(expSlice)) !== null){
+    expRows.push({company:em[1], title:em[2], startDate:em[3].replace(/\s+/g,""), endDate:em[4].replace(/\s+/g,"")});
+  }
+  if(!expRows.length){
+    // PDF 備援：列的欄位界線消失，改在壓平文本中以「機構後綴＋職稱＋日期對」擷取；
+    // 先把表頭字樣打掉，避免被誤併進機構名稱
+    const expFlat = sliceBetween(flat, /經歷/, /職業訓練/).replace(/服務處所名稱|職稱|到職日期|離職日期|時間近者在前/g, "§");
+    const expFlatRe = /([一-龥A-Za-z0-9]{2,16}?(?:公司|商行|工作室|企業社|事務所|診所|門市|中心|店|館|廠|行|社))([一-龥]{2,8}?)(\d{1,3}年\d{1,2}月)(至今|\d{1,3}年\d{1,2}月)/g;
+    while((em = expFlatRe.exec(expFlat)) !== null){
+      expRows.push({company:em[1], title:em[2], startDate:em[3], endDate:em[4]});
+    }
+  }
+  if(expRows.length){ st.applicant.experience = expRows; found("經歷", expRows.length + " 筆"); } else miss("經歷");
+
+  /* --- 事業 --- */
+  const bName = grab(/事業名稱[（(]\s*全銜\s*[）)][：:\s]*([^\n|（(]{2,30})/)
+             || grab(/所營事業名稱[：:]\s*([^\s|（(]{2,30})/);   // 檢核表首頁
+  bName ? (st.business.name = bName.trim(), found("事業名稱", bName)) : miss("事業名稱");
+  if(new RegExp(CHECK+"\\s*公司登記").test(text)) st.business.regType = "company";
+  else if(new RegExp(CHECK+"\\s*商業登記").test(text)) st.business.regType = "business";
+  else if(new RegExp(CHECK+"\\s*立案登記").test(text)) st.business.regType = "license";
+  else if(new RegExp(CHECK+"\\s*依商業登記法").test(text)) st.business.regType = "small";
+  const estDate = grab(/設立日期[：:\s]*(\d{1,3}\s*年\s*\d{1,2}\s*月\s*\d{1,2}\s*日)/);
+  estDate ? (st.business.establishDate = estDate.replace(/\s+/g,""), found("設立日期", estDate)) : miss("設立日期");
+  const taxId = grab(/統一編號(?:或立案編號)?[：:\s]*(\d{8})/) || grabF(/(?:統一編號|立案編號)[：:]?(\d{8})/);
+  taxId ? (st.business.taxId = taxId, found("統一編號", taxId)) : miss("統一編號");
+  // 員工人數：標籤與數字間只允許括注／空白，避免抓到檢核表「未滿5人」的 5
+  const emp = grab(/員工人數[\s\S]{0,14}?[（(]不包括本人[）)][\s|：:]*(\d{1,2})\s*人/)
+           || grab(/員工人數[：:\s|]*(\d{1,2})\s*人/);
+  if(emp !== "") { st.business.employeeCount = parseNum(emp) ?? 0; found("員工人數", emp + " 人"); } else miss("員工人數");
+  const regAddr = grab(new RegExp("事業登[\\s|]*記地(?:址)?[\\s|：:]*" + addrRe))
+               || grabF(new RegExp("事業登記地(?:址)?[：:]?" + addrFlat));
+  if(regAddr) { st.business.regAddress = regAddr.trim(); found("事業登記地址", regAddr); } else miss("事業登記地址");
+  const opAddr = grab(new RegExp("營運地[\\/／店面\\s|]*[：:]?\\s*" + addrRe))
+              || grabF(new RegExp("營運地[\\/／]?店?面?[：:]?" + addrFlat));
+  if(opAddr) { st.business.operateAddress = opAddr.trim(); found("營運地址", opAddr); } else miss("營運地址");
+  // 「主要產品」標籤儲存格常有內部換行（主要產品\n(或業務)），允許跨行找到值
+  const mainProd = grab(/主要產品[\s\S]{0,14}?\|\s*([^\n|]{2,60})/)
+                || grab(/主要產品[（(]或業務[）)][：:\s]*([^\n|]{2,60})/)
+                || grabF(/主要產品[（(]?或業務[）)]?[：:]?([一-龥A-Za-z0-9、，·]{2,40}?)(?=四、|員工人數|營業項目)/);
+  if(mainProd && !/或業務/.test(mainProd)) { st.business.mainProducts = mainProd.trim(); found("主要產品", mainProd); } else miss("主要產品");
+  // 營業項目：行內版與壓平版都收，取項目數較多者（PDF 常把「代碼＋名稱」折成兩行）
+  const bizEndRe = /[一二三四五六七八九十]、|財務分析|創業資金/;
+  const bizRaw = sliceBetween(text, /營業項目/, bizEndRe).match(/[A-Z][A-Z0-9]?\d{6}\s*[^\n|，,]{2,20}/g) || [];
+  const bizFlat = (sliceBetween(flat, /營業項目/, bizEndRe).match(/[A-Z][A-Z0-9]?\d{6}[一-龥]{2,14}/g) || [])
+    .map(s=>s.replace(/^([A-Z][A-Z0-9]?\d{6})/, "$1 "));
+  const bizList = bizFlat.length >= bizRaw.length ? bizFlat : bizRaw;
+  if(bizList.length) { st.business.businessItems = bizList.join("\n"); found("營業項目", bizList.length + " 項"); } else miss("營業項目");
+
+  /* --- 財務 --- */
+  const finSlice = sliceBetween(text, /財務分析[^\n]*\n?/, /創業資金情況/);
+  let pl = null;
+  let plm = finSlice.match(/虧損\s*[-－]?\s*([\d,，]+)\s*元/);
+  if(plm) pl = -parseNum(plm[1]);
+  else if((plm = finSlice.match(/[-－]\s*([\d,，]+)\s*元/))) pl = -parseNum(plm[1]);
+  else if((plm = finSlice.match(/淨利\s*([\d,，]+)\s*元/))) pl = parseNum(plm[1]);
+  if(pl !== null){ st.finance.lastYearProfitLoss = pl; found("申貸前1年損益", fmt(pl) + " 元"); } else miss("申貸前1年損益");
+  const plNote = cleanBlock(finSlice);
+  if(plNote.length > 20) st.finance.profitLossNote = plNote;
+
+  const tf = grab(/資金總額[：:]?[^0-9\n]{0,20}([\d,，]+)\s*元/);
+  tf ? (st.finance.totalFunding = parseNum(tf), found("資金總額", fmt(parseNum(tf)) + " 元")) : miss("資金總額");
+  const sf = grab(/自備金額\s*([\d,，]+)\s*元/);
+  sf ? (st.finance.selfFunding = parseNum(sf), found("自備金額", fmt(parseNum(sf)) + " 元")) : miss("自備金額");
+  const fl = grab(/親友借款金額\s*([\d,，]+)\s*元/);
+  if(fl) st.finance.friendLoan = parseNum(fl);
+
+  const loanSlice = sliceBetween(text, /借\s*[（(]\s*貸\s*[）)]\s*款情況/, /現有設備|尚需資金/);
+  const loanItems = [];
+  const liRe = /([一-龥A-Za-z]{2,10}貸款|信用卡未繳清)[\s，,：:＿_]*(?:金額)?[\s，,：:＿_]*([\d,，]+)\s*元[\s，,]*(?:用途[＿_\s]*([^\s，,＿_]{1,12}))?[\s，,]*月還[＿_\s]*([\d,，]+)\s*元\s*(?:[（(]([^）)]{1,20})[）)])?/g;
+  let lm;
+  while((lm = liRe.exec(loanSlice)) !== null){
+    const nm = lm[1];
+    let type = "other";
+    if(/青創|政府|鳳凰|勞動/.test(nm)) type = "gov";
+    else if(/信用卡/.test(nm)) type = "creditcard";
+    else if(/信用貸款/.test(nm)) type = "credit";
+    else if(/房屋|不動產/.test(nm)) type = "realestate";
+    else if(/汽|機車|車|動產/.test(nm)) type = "vehicle";
+    else if(/現金卡/.test(nm)) type = "cashcard";
+    else if(/企業/.test(nm)) type = "enterprise";
+    loanItems.push({type, name:nm, amount:parseNum(lm[2])||0, purpose:(lm[3]||"").trim(), monthlyPayment:parseNum(lm[4])||0, bank:(lm[5]||"").trim()});
+  }
+  if(loanItems.length){ st.finance.loanItems = loanItems; found("既有借款", loanItems.length + " 筆"); } else miss("既有借款");
+
+  const equipSlice = cleanBlock(sliceBetween(text, /[（(]一[）)]\s*現有設備[^\n]*\n?/, /[（(]二[）)]\s*尚需資金用途/));
+  if(equipSlice.length > 2){
+    st.finance.existingEquipment = equipSlice.split(/[\n、]/).map(l=>l.trim()).filter(l=>l.length>1).slice(0,12).map(l=>({item:l, note:""}));
+    found("現有設備", st.finance.existingEquipment.length + " 項");
+  } else miss("現有設備（原稿常見空白）");
+
+  const fuSlice = sliceBetween(text, /[（(]二[）)]\s*尚需資金用途[^\n]*\n?/, /[（(]三[）)]|九、/);
+  const fuItems = [];
+  const fuRe = /([^\n：:|]{2,30}?)[\s：:]*([\d][\d,，]*)\s*元/g;
+  let fm2;
+  while((fm2 = fuRe.exec(fuSlice)) !== null){
+    const amt = parseNum(fm2[2]);
+    if(amt && amt > 100) fuItems.push({item:fm2[1].replace(/^\d+[.、]\s*/,"").trim(), amount:amt});
+  }
+  if(fuItems.length){ st.finance.fundUse = fuItems; found("尚需資金用途明細", fuItems.length + " 項"); } else miss("尚需資金用途明細（原稿常見空白）");
+
+  const lpSlice = cleanBlock(sliceBetween(text, /[（(]三[）)]\s*請說明貸款用途[^\n]*\n?/, /九、|申請貸款金額/));
+  if(lpSlice.length > 10) st.finance.loanPurposeExplanation = lpSlice;
+
+  const reqAmt = grab(/申請貸款金額新臺幣[＿_\s]*([\d,，]+)\s*元/);
+  reqAmt ? (st.finance.requestedLoanAmount = parseNum(reqAmt), found("申請貸款金額", fmt(parseNum(reqAmt)) + " 元")) : miss("申請貸款金額");
+  const years = grab(/貸款期間[：:＿_\s]*(\d{1,2})[＿_\s]*年/);
+  years ? (st.finance.loanPeriodYears = parseNum(years), found("貸款期間", years + " 年")) : miss("貸款期間");
+  const bankMap = [["臺灣銀行","taiwan"],["臺灣土地銀行","land"],["臺灣中小企業銀行","sme"],["合作金庫商業銀行","tcb"],["第一商業銀行","first"],["彰化商業銀行","changhwa"],["華南商業銀行","hncb"]];
+  for(const [label,key] of bankMap){
+    const bm = text.match(new RegExp(CHECK + "\\s*" + label + "[：:＿_\\s]*([^\\s＿_|]{0,10}?)[＿_\\s]*分行"));
+    if(bm){ st.finance.bank = key; st.finance.bankBranch = (bm[1]||"").trim(); found("申請貸款銀行", label + " " + (bm[1]||"") + "分行"); break; }
+  }
+
+  /* --- 計畫書長文 --- */
+  const planFields = [
+    ["productService", /[（(]一[）)]\s*請說明產品或服務內容[^\n]*\n?/, /[（(]二[）)]\s*請說明營業時間/, "產品或服務內容"],
+    ["businessHours", /[（(]二[）)]\s*請說明營業時間[^\n]*\n?/, /[（(]三[）)]\s*現有或潛在客源/, "營業時間"],
+    ["customerSource", /[（(]三[）)]\s*現有或潛在客源[^\n]*\n?/, /[（(]四[）)]\s*與他人共同/, "現有或潛在客源"],
+    ["coOperationNote", /[（(]四[）)]\s*與他人共同[^\n]*\n?/, /二、\s*市場分析/, "共同經營說明"],
+    ["targetMarketAnalysis", /二、\s*市場分析[\s\S]{0,80}?[（(]一[）)][^\n]*\n?/, /[（(]二[）)]\s*請說明市場潛力/, "目標市場分析"],
+    ["marketOutlook", /[（(]二[）)]\s*請說明市場潛力[^\n]*\n?/, /三、\s*償貸計畫/, "市場潛力展望"],
+    ["autobiography", /四、\s*自傳簡述[^\n]*\n?/, /伍、|切結書|具結人/, "自傳簡述"]
+  ];
+  for(const [key, sRe, eRe, label] of planFields){
+    const v = cleanBlock(sliceBetween(text, sRe, eRe));
+    if(v.length > 6){ st.plan[key] = v; found(label, v.slice(0,18) + "…"); }
+    else if(key !== "coOperationNote") miss(label);
+  }
+  const repaySlice = sliceBetween(text, /三、\s*償貸計畫/, /四、\s*自傳/);
+  const profits = (repaySlice.match(/淨利\s*([\d,，]+)\s*元/g) || []).map(s=>parseNum(s.match(/([\d,，]+)/)[1]));
+  if(profits.length >= 1) st.plan.repayment.year1_2NetProfit = profits[0];
+  if(profits.length >= 2) st.plan.repayment.year3NetProfit = profits[1];
+  const rateM = repaySlice.match(/利率\s*([\d.]+)\s*%/);
+  if(rateM) st.plan.repayment.interestRate = parseFloat(rateM[1]);
+  const princM = repaySlice.match(/攤還本金\s*([\d,，]+)/);
+  if(princM) st.plan.repayment.monthlyPrincipal1_2 = parseNum(princM[1]);
+  if(profits.length || rateM) found("償貸計畫數字", "已擷取部分數字");
+
+  return {newState: st, report};
+}
+
+function renderImportReport(report, fileName, errorMsg){
+  const card = document.getElementById("importReportCard");
+  const box = document.getElementById("importReport");
+  card.style.display = "block";
+  if(errorMsg){
+    box.innerHTML = `<div class="sum-check bad">✗ 無法解析「${escapeHtml(fileName)}」：${escapeHtml(errorMsg)}</div>`;
+    return;
+  }
+  const okItems = report.filter(r=>r.ok);
+  const missItems = report.filter(r=>!r.ok);
+  box.innerHTML = `
+    <div class="sum-check ok" style="margin-bottom:8px;">✓ 已從「${escapeHtml(fileName)}」辨識出 ${okItems.length} 個欄位，未辨識 ${missItems.length} 個</div>
+    ${okItems.map(r=>`<div>✓ ${escapeHtml(r.label)}${r.value? `：<span style="color:var(--muted)">${escapeHtml(String(r.value))}</span>`:""}</div>`).join("")}
+    ${missItems.length ? `<div style="margin-top:8px; color:var(--danger); font-weight:600;">未辨識（請手動確認／填寫）：</div>` : ""}
+    ${missItems.map(r=>`<div style="color:var(--danger)">✗ ${escapeHtml(r.label)}</div>`).join("")}
+  `;
+}
+
+const fileUploadEl = document.getElementById("fileUpload");
+document.getElementById("btnUpload").addEventListener("click", ()=>fileUploadEl.click());
+fileUploadEl.addEventListener("change", async ()=>{
+  const file = fileUploadEl.files[0];
+  fileUploadEl.value = "";
+  if(!file) return;
+  const ext = file.name.split(".").pop().toLowerCase();
+  document.querySelector('nav.tabs button[data-tab="applicant"]').click();
+  try{
+    const buf = await file.arrayBuffer();
+    let text;
+    if(ext === "docx") text = await extractDocxText(buf);
+    else if(ext === "pdf") text = await extractPdfText(buf);
+    else throw new Error("僅支援 .docx 與 .pdf 檔案");
+    const {newState, report} = parseApplication(text);
+    const okCount = report.filter(r=>r.ok).length;
+    if(okCount === 0) throw new Error("檔案內找不到任何可對應的申請書欄位——請確認這是「微型創業鳳凰貸款」申請書格式。");
+    if(!confirm(`已辨識出 ${okCount} 個欄位，將覆蓋目前所有已填寫內容，確定套用嗎？`)) return;
+    state = newState;
+    saveState();
+    rebuildAll();
+    renderImportReport(report, file.name);
+  }catch(err){
+    renderImportReport([], file.name, err.message);
+  }
+});
+
+/* ---------------- Generate / Optimize ---------------- */
+const FUND_USE_BENEFIT = [
+  [/設備|機器|機台|機具|烘|冷凍|冷藏|雕刻|清洗機|煎台/, "產能目前就卡在設備上，這筆投下去，同樣的工時能接下更多訂單"],
+  [/週轉|備貨|原料|進貨|存貨|包材/, "這一行要備足貨才談得到好價錢，週轉金充足，進價就壓得下來"],
+  [/行銷|廣告|推廣|網路/, "客人要先看得到店，才有後面的生意，這筆錢是讓更多人知道我們"],
+  [/裝潢|裝修|改善|門面/, "環境舒服，客人才留得住、也才會再來"],
+  [/訓練|教育|課程/, "手藝和服務是店的根本，這筆錢是投資在人身上"],
+  [/檢驗|認證|許可/, "生意要做得長久，該過的檢驗一項都不能省"],
+  [/車|載具|貨車/, "有自己的車，送貨的範圍和時間就能自己掌握"]
+];
+function benefitFor(item){
+  for(const [re, txt] of FUND_USE_BENEFIT){ if(re.test(item)) return txt; }
+  return "是目前營運上實際需要的支出";
+}
+function generatePlan(){
+  const f = state.finance, p = state.plan, a = state.applicant, b = state.business;
+  const warnings = [];
+  const changes = [];
+
+  const needed = (f.totalFunding||0) - (f.selfFunding||0) - (f.raisedFunding||0) - (f.friendLoan||0) - (f.bankLoanExisting||0) - (f.otherFunding||0);
+  const P = f.requestedLoanAmount || 0;
+  const yrs = f.loanPeriodYears || 7;
+  if(!P){ warnings.push("尚未填寫申請貸款金額，攤還數字無法計算。"); }
+  let rate = p.repayment.interestRate;
+  if(!rate || rate <= 0){ rate = 2.0; warnings.push("未填利率，攤還試算暫以年利率 2.0% 估算（實際依郵儲利率加碼機動計息），請自行修正。"); }
+
+  /* 攤還數字重算 */
+  if(P > 0){
+    const n = yrs * 12;
+    const monthlyPrincipal = Math.round(P / n);
+    const r = rate / 100 / 12;
+    const annuity = Math.round(P * r / (1 - Math.pow(1 + r, -n)));
+    p.repayment.monthlyPrincipal1_2 = monthlyPrincipal;
+    p.repayment.monthlyPayment3 = annuity;
+    p.repayment.interestRate = rate;
+    changes.push(`償貸數字：每月攤還本金 ${fmt(monthlyPrincipal)} 元、本息平均攤還約 ${fmt(annuity)} 元（${yrs}年期、利率 ${rate}% 試算）`);
+  }
+
+  /* 資金用途明細一致性 */
+  const fundUseValid = (f.fundUse||[]).filter(u=>u.item && u.amount>0);
+  const fuSum = fundUseValid.reduce((s,u)=>s+u.amount, 0);
+  if(!fundUseValid.length) warnings.push("「尚需資金用途明細」尚未填寫——這是最常被要求補件的欄位，請務必拆列。");
+  else if(Math.abs(fuSum - needed) > 1) warnings.push(`資金用途明細加總 ${fmt(fuSum)} 元與尚需資金總額 ${fmt(needed)} 元不符，請調整。`);
+  if(P !== needed && P > 0 && needed > 0) warnings.push(`申請貸款金額 ${fmt(P)} 元與尚需資金總額 ${fmt(needed)} 元不一致，請確認。`);
+  if(!(f.existingEquipment||[]).some(e=>e.item)) warnings.push("「現有設備」尚未填寫，請至少列出主要器具、設備或存貨。");
+
+  /* 貸款用途及效益說明 */
+  if(fundUseValid.length && P > 0){
+    const lines = fundUseValid.map((u,i)=>`（${i+1}）${u.item} ${fmt(u.amount)} 元。${benefitFor(u.item)}。`);
+    f.loanPurposeExplanation = `這次申請的 ${fmt(P)} 元，用途我拆成 ${fundUseValid.length} 筆，每一筆都對應到目前實際卡住的地方：\n${lines.join("\n")}\n這些錢不是為了借而借。用途想得越具體，錢進來之後才不會亂花；資金到位後的效益，也已經反映在後面償貸計畫的淨利估算裡。`;
+    changes.push("貸款用途及效益說明：已依資金用途明細重組");
+  }
+
+  /* 損益說明（僅空白或過短時生成） */
+  if((f.profitLossNote||"").trim().length < 40){
+    const plVal = f.lastYearProfitLoss || 0;
+    const fundItemNames = fundUseValid.map(u=>u.item).join("、");
+    f.profitLossNote = plVal < 0
+      ? `本事業於${b.establishDate || "【請填設立日期】"}設立，第一年帳上是虧損 ${fmt(Math.abs(plVal))} 元。這個數字我不迴避——【請用一兩句話說清楚主因，例如：為了打開客源先讓利、設備還不到位、進貨量小所以成本壓不下來】。\n不過趨勢是往上的：【請補一個具體的成長事實，例如月營業額、來客數或訂單數這幾個月的變化】。虧損是起步階段的過渡，不是常態。${fundItemNames ? `等${fundItemNames}到位，` : ""}成本結構改善之後，損益會逐步回正。`
+      : `本事業於${b.establishDate || "【請填設立日期】"}設立，申貸前一年帳列淨利 ${fmt(plVal)} 元。金額不算大，但每一筆都是實實在在做出來的。目前的限制在於【請填：例如產能、備貨或人力的瓶頸】，這也正是這次申請貸款想解決的問題。`;
+    changes.push("損益說明：已生成結構化段落（含待補充標記）");
+  }
+
+  /* 獲利轉正說明 */
+  const np1 = p.repayment.year1_2NetProfit || 0;
+  const annuity12 = (p.repayment.monthlyPayment3 || 0) * 12;
+  const existingMonthly = (f.loanItems||[]).reduce((s,l)=>s+(l.monthlyPayment||0), 0);
+  let bridge = "";
+  if((f.lastYearProfitLoss||0) < 0){
+    bridge = `先講現況：目前帳上虧損 ${fmt(Math.abs(f.lastYearProfitLoss))} 元，卡住的地方是【請填一項並具體說明：週轉金不足／設備產能受限／客源還在建立】。`
+      + `\n這筆 ${fmt(P)} 元進來之後，${fundUseValid.length ? "會投入" + fundUseValid.map(u=>u.item).join("、") + "。" : "【請填資金投入項目】。"}轉虧為盈的估算基礎是：【請填具體假設，例如月營業額從 X 元提升到 Y 元、毛利率從 X% 到 Y%——數字不用漂亮，但要經得起承辦人員追問】。`;
+  } else {
+    bridge = `本事業目前已有獲利基礎，這筆資金是用來把現有的生意做大，不是拿來補洞。【請補充具體的成長假設，例如月營業額、毛利率預計的變化】`;
+  }
+  if(np1 > 0 && annuity12 > 0){
+    const surplus = np1 - annuity12 - existingMonthly*12;
+    bridge += `\n還款的帳我先算過：預估年淨利 ${fmt(np1)} 元，本貸款一年要還約 ${fmt(annuity12)} 元`
+      + (existingMonthly ? `，加上既有借款一年約 ${fmt(existingMonthly*12)} 元` : "")
+      + (surplus >= 0
+        ? `，扣完還剩約 ${fmt(surplus)} 元。每月的還款金額，是先確認負擔得起才提出申請的。`
+        : `，扣完短少約 ${fmt(Math.abs(surplus))} 元——這樣的淨利撐不起還款，請調整貸款金額、期間，或把獲利假設補強到能自圓其說。`);
+    if(surplus < 0) warnings.push("預估淨利不足以涵蓋年還款總額，審查時會被質疑，請調整。");
+  } else {
+    warnings.push("尚未填寫第1、2年預估淨利，無法檢核償貸能力，請補填。");
+  }
+  p.profitBridgeExplanation = bridge;
+  changes.push("獲利轉正說明：已生成（含償貸能力檢核）");
+
+  /* 自傳（依基本資料重組） */
+  const pastExp = (a.experience||[]).filter(e=>e.company && e.endDate!=="至今");
+  const expSentence = pastExp.length
+    ? pastExp.map(e=>`在${e.company}做過${e.title}（${e.startDate}到${e.endDate}）`).join("，之前")
+    : "";
+  const famText = a.maritalStatus === "married" ? "已婚" : "單身";
+  p.autobiography = `本人${famText}${a.maritalStatus==="married" ? "，家計是我和配偶一起扛的" : ""}。`
+    + (expSentence
+      ? `創業之前，我${expSentence}。這段時間學到的不只是技術，還有怎麼跟客人打交道、怎麼把品質顧穩——【建議加一句自己的話：這行最重要的一件事是什麼，你是怎麼學會的】。`
+      : `【請補充創業前的工作經歷：在哪裡做過什麼、做了多久、學到什麼】。`)
+    + `\n\n${b.establishDate || "【設立日期】"}，我決定自己出來做，成立了${b.name || "【事業名稱】"}${b.mainProducts ? `，做的是${b.mainProducts}` : ""}。原因說起來很簡單：【請填一句真話——例如看準了穩定的客源、想把品質掌握在自己手上、或是家裡需要更穩定的收入。一句就好，不用寫成勵志文】。`
+    + `\n\n開業到現在，${(p.customerSource||"").length > 20 ? "客源慢慢穩下來了（細節寫在前面的經營現況）" : "【請簡單講目前的狀況：一個月大概做多少生意、客人從哪裡來】"}。`
+    + `這次申請的${P ? ` ${fmt(P)} 元` : "貸款"}會用在${fundUseValid.length ? fundUseValid.map(u=>u.item).join("、") : "【請填資金用途】"}。借來的每一塊錢都是要還的，所以用途我想得很具體，還款的數字也先算過了——把店顧好、把錢按時還完，就是我對這筆貸款的打算。`;
+  changes.push("自傳簡述：已依基本資料重組骨架（含待補充標記）");
+
+  return {changes, warnings};
+}
+
+document.getElementById("btnGenerate").addEventListener("click", ()=>{
+  if(!confirm("將依目前資料重組計畫書內容（生成前會自動備份，可一鍵復原），確定執行嗎？")) return;
+  localStorage.setItem("phoenixLoanBackup", JSON.stringify(state));
+  document.getElementById("btnRestoreBackup").disabled = false;
+  const {changes, warnings} = generatePlan();
+  saveState();
+  rebuildAll();
+  document.getElementById("generateReport").innerHTML = `
+    <div class="sum-check ok" style="margin-bottom:6px;">✓ 已更新 ${changes.length} 個項目（【】內為需要你補充的具體事實）</div>
+    ${changes.map(c=>`<div>✓ ${escapeHtml(c)}</div>`).join("")}
+    ${warnings.length ? `<div style="margin-top:8px; font-weight:600; color:#9a3412;">檢核提醒：</div>` : ""}
+    ${warnings.map(w=>`<div style="color:#9a3412;">⚠ ${escapeHtml(w)}</div>`).join("")}
+  `;
+});
+document.getElementById("btnRestoreBackup").addEventListener("click", ()=>{
+  const bak = localStorage.getItem("phoenixLoanBackup");
+  if(!bak){ return; }
+  if(!confirm("將復原到生成前的內容，確定嗎？")) return;
+  state = JSON.parse(bak);
+  saveState();
+  rebuildAll();
+  document.getElementById("generateReport").innerHTML = `<div class="sum-check ok">✓ 已復原生成前內容</div>`;
+});
+
+/* ---------------- AI 優化（串接外部 LLM API，選用） ---------------- */
+const AI_PROVIDERS = {
+  claude:     {label:"Claude（Anthropic）", defaultModel:"claude-opus-4-8"},
+  openai:     {label:"OpenAI",             defaultModel:"gpt-4o-mini"},
+  gemini:     {label:"Gemini（Google）",    defaultModel:"gemini-3.5-flash"},
+  openrouter: {label:"OpenRouter",         defaultModel:"openai/gpt-4o-mini"}
+};
+// 曾經當過預設、後來被服務商停用的模型：載入舊設定時自動換成現行預設
+const AI_LEGACY_DEFAULTS = ["gemini-2.5-flash"];
+// AI 只重寫敘述欄位；數字欄位（攤還、金額）一律不交給模型改
+const AI_FIELDS = [
+  ["plan","productService","一（一）產品或服務內容"],
+  ["plan","customerSource","一（三）現有或潛在客源"],
+  ["plan","targetMarketAnalysis","二（一）目標市場分析"],
+  ["plan","marketOutlook","二（二）市場潛力展望"],
+  ["finance","profitLossNote","損益說明"],
+  ["finance","loanPurposeExplanation","貸款用途及效益說明"],
+  ["plan","profitBridgeExplanation","獲利轉正說明"],
+  ["plan","autobiography","自傳簡述"]
+];
+
+function loadAiConfig(){
+  try{ return JSON.parse(localStorage.getItem("phoenixLoanApiConfig")) || {}; }catch(e){ return {}; }
+}
+function saveAiConfig(cfg){
+  localStorage.setItem("phoenixLoanApiConfig", JSON.stringify(cfg));
+}
+function initAiPanel(){
+  const sel = document.getElementById("aiProvider");
+  sel.innerHTML = Object.entries(AI_PROVIDERS).map(([k,v])=>`<option value="${k}">${v.label}</option>`).join("");
+  const cfg = loadAiConfig();
+  sel.value = cfg.provider && AI_PROVIDERS[cfg.provider] ? cfg.provider : "claude";
+  const savedModel = (cfg.model && !AI_LEGACY_DEFAULTS.includes(cfg.model)) ? cfg.model : "";
+  document.getElementById("aiModel").value = savedModel || AI_PROVIDERS[sel.value].defaultModel;
+  document.getElementById("aiKey").value = cfg.apiKey || "";
+  document.getElementById("aiHint").value = cfg.hint || "";
+  document.querySelectorAll(".ai-hint-example").forEach(btn=>{
+    if(btn.dataset.bound) return;
+    btn.dataset.bound = "1";
+    btn.addEventListener("click", ()=>{ document.getElementById("aiHint").value = btn.dataset.hint; });
+  });
+  sel.addEventListener("change", ()=>{
+    // 換服務商時，若模型欄還是別家的預設值就跟著換，使用者自填的則保留
+    const modelEl = document.getElementById("aiModel");
+    const isDefault = Object.values(AI_PROVIDERS).some(v=>v.defaultModel === modelEl.value.trim())
+                   || AI_LEGACY_DEFAULTS.includes(modelEl.value.trim());
+    if(!modelEl.value.trim() || isDefault) modelEl.value = AI_PROVIDERS[sel.value].defaultModel;
+  });
+}
+
+function buildAiPrompt(){
+  const a = state.applicant, b = state.business, f = state.finance, p = state.plan;
+  const needed = (f.totalFunding||0) - (f.selfFunding||0) - (f.raisedFunding||0) - (f.friendLoan||0) - (f.bankLoanExisting||0) - (f.otherFunding||0);
+  const facts = [
+    `事業名稱：${b.name || "（未填）"}；登記型態：${REGTYPE_LABEL[b.regType]}；設立日期：${b.establishDate || "（未填）"}`,
+    `主要產品／業務：${b.mainProducts || "（未填）"}；員工人數（不含負責人）：${b.employeeCount ?? 0} 人`,
+    `申請人：${a.maritalStatus==="married" ? "已婚" : "單身"}；經歷：${(a.experience||[]).filter(e=>e.company).map(e=>`${e.company} ${e.title}（${e.startDate}～${e.endDate}）`).join("、") || "（未填）"}`,
+    `申貸前1年損益：${(f.lastYearProfitLoss||0) < 0 ? "虧損 " + fmt(Math.abs(f.lastYearProfitLoss)) : "淨利 " + fmt(f.lastYearProfitLoss||0)} 元`,
+    `本計畫資金總額：${fmt(f.totalFunding)} 元；自備：${fmt(f.selfFunding)} 元；尚需資金：${fmt(needed)} 元；申請貸款金額：${fmt(f.requestedLoanAmount)} 元；期間：${f.loanPeriodYears} 年`,
+    `資金用途明細：${(f.fundUse||[]).filter(u=>u.item).map(u=>`${u.item} ${fmt(u.amount)} 元`).join("；") || "（未填）"}`,
+    `現有設備：${(f.existingEquipment||[]).filter(e=>e.item).map(e=>e.item).join("、") || "（未填）"}`,
+    `既有借款：${(f.loanItems||[]).map(l=>`${l.name} ${fmt(l.amount)} 元（月還 ${fmt(l.monthlyPayment)} 元）`).join("；") || "無"}`,
+    `償貸數字：第1、2年預估淨利 ${fmt(p.repayment.year1_2NetProfit)} 元；每月攤還本金 ${fmt(p.repayment.monthlyPrincipal1_2)} 元；第3年起預估淨利 ${fmt(p.repayment.year3NetProfit)} 元；利率 ${p.repayment.interestRate}%；每月攤還本息 ${fmt(p.repayment.monthlyPayment3)} 元`,
+    `營業時間：${p.businessHours || "（未填）"}`
+  ].join("\n");
+
+  const current = AI_FIELDS.map(([sec, key, label])=>{
+    const v = (state[sec][key] || "").trim();
+    return `《${label}》\n${v || "（目前空白）"}`;
+  }).join("\n\n");
+
+  const hint = (document.getElementById("aiHint")?.value || "").trim();
+  const hintBlock = hint
+    ? `\n【使用者指定的優化方向（除了不可捏造事實，其餘請優先遵循）】\n${hint}\n`
+    : "";
+
+  return `你是一位協助台灣微型創業者撰寫「微型創業鳳凰貸款」申請書的資深顧問。請根據下面的事實資料，改寫「創業貸款計畫書」的各段內容，讓銀行與勞動部審查人員讀起來具體、可信、有人味。
+
+寫作要求：
+1. 用申請人第一人稱（我／本人），長短句交錯，像一位認真的創業者自己寫的，不要公文腔。
+2. 不要用制式的 AI 慣用語（例如「此外」「不僅…更…」「致力於」「彰顯」「打造」「隨著…的發展」），也避免三項式排比與空泛的形容詞堆疊。
+3. 絕對不可以捏造數字、店名、客戶數或任何事實，只能使用事實資料與目前段落中出現的資訊。
+4. 段落需要但資料中沒有的具體資訊，用【請補充：需要什麼】標示，讓申請人自己填。
+5. 內容要比現有段落更充實、更聚焦在「還款能力」與「資金用途的必要性」，但不要灌水湊字數。
+6. 數字沿用事實資料中的格式（含千分位逗號）。
+
+【事實資料】
+${facts}
+${hintBlock}
+【目前的段落內容（改寫時保留其中的事實）】
+${current}
+
+請只輸出一個 JSON 物件，不要 markdown 圍欄、不要任何其他文字。鍵固定如下，值為改寫後的完整段落（字串，可含換行）：
+{"productService":"...","customerSource":"...","targetMarketAnalysis":"...","marketOutlook":"...","profitLossNote":"...","loanPurposeExplanation":"...","profitBridgeExplanation":"...","autobiography":"..."}`;
+}
+
+async function callLLM(provider, model, apiKey, prompt, onRetry){
+  let url, headers, body, extract;
+  if(provider === "claude"){
+    url = "https://api.anthropic.com/v1/messages";
+    headers = {
+      "content-type": "application/json",
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
+      "anthropic-dangerous-direct-browser-access": "true"
+    };
+    body = {model, max_tokens: 16000, messages: [{role: "user", content: prompt}]};
+    extract = (d)=>{
+      if(d.stop_reason === "refusal") throw new Error("模型拒絕了這個請求（refusal）");
+      const t = (d.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("");
+      if(!t) throw new Error("回應中沒有文字內容");
+      return t;
+    };
+  } else if(provider === "openai"){
+    url = "https://api.openai.com/v1/chat/completions";
+    headers = {"content-type": "application/json", "authorization": "Bearer " + apiKey};
+    body = {model, messages: [{role: "user", content: prompt}]};
+    extract = (d)=>d.choices?.[0]?.message?.content || (()=>{throw new Error("回應中沒有文字內容")})();
+  } else if(provider === "gemini"){
+    // 金鑰放 header（x-goog-api-key），不放 URL 參數
+    url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
+    headers = {"content-type": "application/json", "x-goog-api-key": apiKey};
+    body = {contents: [{parts: [{text: prompt}]}]};
+    extract = (d)=>{
+      const t = (d.candidates?.[0]?.content?.parts||[]).map(p=>p.text||"").join("");
+      if(!t) throw new Error("回應中沒有文字內容");
+      return t;
+    };
+  } else if(provider === "openrouter"){
+    url = "https://openrouter.ai/api/v1/chat/completions";
+    headers = {"content-type": "application/json", "authorization": "Bearer " + apiKey};
+    body = {model, messages: [{role: "user", content: prompt}]};
+    extract = (d)=>d.choices?.[0]?.message?.content || (()=>{throw new Error("回應中沒有文字內容")})();
+  } else {
+    throw new Error("不支援的服務商");
+  }
+  // 暫時性錯誤（過載 503／限流 429 等）自動重試：等 8、16 秒各重打一次
+  const RETRYABLE = new Set([429, 500, 503, 529]);
+  const MAX_TRIES = 3;
+  for(let attempt = 1; attempt <= MAX_TRIES; attempt++){
+    const resp = await fetch(url, {method: "POST", headers, body: JSON.stringify(body), signal: AbortSignal.timeout(180000)});
+    const raw = await resp.text();
+    if(resp.ok) return extract(JSON.parse(raw));
+    let msg = raw.slice(0, 300);
+    try{
+      const err = JSON.parse(raw);
+      msg = err.error?.message || err.message || msg;
+    }catch(e){}
+    if(RETRYABLE.has(resp.status) && attempt < MAX_TRIES){
+      const waitSec = attempt * 8;
+      if(onRetry) onRetry(attempt, resp.status, waitSec);
+      await new Promise(r => setTimeout(r, waitSec * 1000));
+      continue;
+    }
+    if(resp.status === 404) msg += "——這通常表示模型名稱錯誤或已停用，請到該服務商的模型列表確認目前可用的模型 ID，填入上方「模型」欄位";
+    if(RETRYABLE.has(resp.status)) msg += `——已自動重試 ${MAX_TRIES-1} 次仍失敗，多為服務商暫時過載，請稍候幾分鐘再試，或更換模型／服務商`;
+    throw new Error(`API 回應 ${resp.status}：${msg}`);
+  }
+}
+
+function extractJsonObject(text){
+  // 模型偶爾會包 ```json 圍欄或前後夾說明文字，取第一個 { 到最後一個 } 之間解析
+  const cleaned = text.replace(/```json|```/g, "");
+  const start = cleaned.indexOf("{");
+  const end = cleaned.lastIndexOf("}");
+  if(start < 0 || end <= start) throw new Error("模型輸出中找不到 JSON 物件：" + text.slice(0, 120));
+  return JSON.parse(cleaned.slice(start, end + 1));
+}
+
+document.getElementById("btnAiGenerate").addEventListener("click", async ()=>{
+  const provider = document.getElementById("aiProvider").value;
+  const model = document.getElementById("aiModel").value.trim();
+  const apiKey = document.getElementById("aiKey").value.trim();
+  const reportEl = document.getElementById("aiReport");
+  if(!apiKey){ reportEl.innerHTML = `<div class="sum-check bad">✗ 請先填入 API 金鑰</div>`; return; }
+  if(!model){ reportEl.innerHTML = `<div class="sum-check bad">✗ 請填入模型名稱</div>`; return; }
+  if(!confirm(`將把目前的計畫書內容傳送給 ${AI_PROVIDERS[provider].label} 進行優化，優化結果會覆蓋敘述欄位（會先自動備份）。確定執行嗎？`)) return;
+
+  saveAiConfig({provider, model, apiKey, hint: document.getElementById("aiHint").value});
+  const btn = document.getElementById("btnAiGenerate");
+  btn.disabled = true;
+  reportEl.innerHTML = `<div class="sum-check ok">呼叫 ${AI_PROVIDERS[provider].label}（${escapeHtml(model)}）中，請稍候…</div>`;
+  try{
+    const text = await callLLM(provider, model, apiKey, buildAiPrompt(), (attempt, status, waitSec)=>{
+      reportEl.innerHTML = `<div class="sum-check warn">API 回應 ${status}（服務商暫時過載／限流），${waitSec} 秒後自動重試（第 ${attempt}／2 次）…</div>`;
+    });
+    const parsed = extractJsonObject(text);
+    localStorage.setItem("phoenixLoanBackup", JSON.stringify(state));
+    document.getElementById("btnRestoreBackup").disabled = false;
+    const applied = [], skipped = [];
+    for(const [sec, key, label] of AI_FIELDS){
+      const v = parsed[key];
+      if(typeof v === "string" && v.trim().length > 10){
+        state[sec][key] = v.trim();
+        applied.push(label);
+      } else {
+        skipped.push(label);
+      }
+    }
+    if(!applied.length) throw new Error("模型回傳的 JSON 中沒有可用的欄位");
+    saveState();
+    rebuildAll();
+    reportEl.innerHTML = `
+      <div class="sum-check ok" style="margin-bottom:6px;">✓ AI 已優化 ${applied.length} 個段落（【】內為需要你補充的事實），請逐段核對數字與事實後再使用</div>
+      ${applied.map(l=>`<div>✓ ${escapeHtml(l)}</div>`).join("")}
+      ${skipped.length ? `<div style="color:#9a3412;">⚠ 未更新：${skipped.map(escapeHtml).join("、")}</div>` : ""}
+    `;
+  }catch(err){
+    const msg = err.name === "TimeoutError" ? "請求逾時（180秒），請重試或換模型" : err.message;
+    reportEl.innerHTML = `<div class="sum-check bad">✗ 優化失敗：${escapeHtml(msg)}</div>`;
+  }finally{
+    btn.disabled = false;
+  }
+});
+
+/* ---------------- Sample picker ---------------- */
+function populateSampleSelect(){
+  const sel = document.getElementById("sampleSelect");
+  sel.innerHTML = Object.entries(SAMPLE_LIBRARY).map(([key,cfg])=>
+    `<option value="${key}">${cfg.label}</option>`).join("");
+  sel.value = DEFAULT_SAMPLE_KEY;
+}
+
+/* ---------------- Buttons ---------------- */
+document.getElementById("btnLoadSample").addEventListener("click", ()=>{
+  const key = document.getElementById("sampleSelect").value;
+  const cfg = SAMPLE_LIBRARY[key];
+  if(confirm(`將覆蓋目前所有已填寫內容，改載入「${cfg.label}」範例資料，確定嗎？`)){
+    state = JSON.parse(JSON.stringify(cfg.state));
+    saveState();
+    rebuildAll();
+  }
+});
+document.getElementById("btnClear").addEventListener("click", ()=>{
+  if(confirm("將清空所有欄位內容，確定嗎？此動作無法復原。")){
+    state = JSON.parse(JSON.stringify(EMPTY_STATE));
+    saveState();
+    rebuildAll();
+  }
+});
+document.getElementById("btnPrint").addEventListener("click", ()=>{
+  document.querySelector('nav.tabs button[data-tab="preview"]').click();
+  setTimeout(()=>window.print(), 150);
+});
+
+function rebuildAll(){
+  document.querySelectorAll("[data-bound]").forEach(el=>delete el.dataset.bound);
+  bindSimpleInputs();
+  renderMaritalRadio();
+  renderOtherIdentities();
+  initListEditors();
+  refreshDerived();
+  renderPreview();
+}
+
+/* ---------------- Init ---------------- */
+populateSampleSelect();
+initAiPanel();
+if(localStorage.getItem("phoenixLoanBackup")) document.getElementById("btnRestoreBackup").disabled = false;
+bindSimpleInputs();
+renderMaritalRadio();
+renderOtherIdentities();
+initListEditors();
+refreshDerived();
+renderPreview();
+</script>
+</body>
+</html>
