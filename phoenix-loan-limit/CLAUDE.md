@@ -39,6 +39,10 @@
 - **驗證**：本機 `python -m http.server 8778` 起服務，Chrome 開真實頁面確認 `manifest.json`／`service-worker.js`／四個 icon 皆 200；`navigator.serviceWorker.getRegistration()` 確認狀態變成 `activated`；`beforeinstallprompt` 有實際觸發並被腳本攔截（`deferredPrompt` 非 null，證明頁面被瀏覽器判定為可安裝）；點擊按鈕確實呼叫了 `deferredPrompt.prompt()`（程式化 `.click()` 缺乏真實使用者手勢會被瀏覽器丟 `NotAllowedError`，這是自動化測試本身的已知限制，不是程式碼問題——真人點擊沒有這個限制）。
 - 已重新打包 `phoenix-loan-limit/PhoenixLoanLimitGenerator.exe`，`--add-data` 一併加入 `manifest.json`／`service-worker.js`／`icons/` 三項，讓桌面版也能供應這些檔案（雖然本機 exe 場景「安裝」意義不大，但至少不會 404）。
 
+## 訪客次數計數器（2026-08-17 新增）
+
+頁尾比照 `SocialPost` 的做法加了一個 `visitor-badge.laobi.icu` 的 SVG badge（`<img src="https://visitor-badge.laobi.icu/badge?page_id=m255525.phoenixloanlimit">`），免金鑰免後端，純前端 `<img>` 嵌入即可，跟工作區其他已上線工具用同一個第三方服務、各自用不同的 `page_id` 區分計數。已重建 exe（純粹為了讓打包內容跟 `index.html` 保持一致，桌面版使用者也會被算進去，訪客計數對 exe 情境意義不大但不影響功能）。
+
 ## 桌面版 exe（phoenix-loan-limit/）
 
 `phoenix-loan-limit/PhoenixLoanLimitGenerator.exe`（子資料夾與專案本身同名——原本叫 `exe/`，2026-07-23 依使用者要求改名）：做法比照 `../phoenix-loan/`，`launcher.py` 把 `index.html`／`manual.html`／`README.md`／`manifest.json`／`service-worker.js`／`icons/`（2026-08-17 加入主畫面功能新增，見上方）打包進 exe，執行時於 **127.0.0.1:8778** 起本機伺服器（工作區固定埠——8770 一般版、8771 icap、8772 sbir、8773/8774 ai-video-studio、8775 IPA_Kano、8776 Dashboard、8777 Prompt，本專案取 8778，新專案取埠前先查其他子資料夾 CLAUDE.md）。**修改 index.html 後 exe 不會自動更新，需重建**：
