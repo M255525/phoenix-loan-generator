@@ -33,12 +33,16 @@
 
 無建置/測試指令。修改 `index.html` 後直接用瀏覽器開啟驗證即可（若本機未連接 Preview MCP，可用 `python -m http.server <port> --directory phoenix-loan-generator` 暫時起一個靜態伺服器測試，測完記得關閉）。
 
+### 課程教學版（phoenix-loan-limit/）
+
+子資料夾 `phoenix-loan-limit/` 是給學員使用的教學版：功能與根目錄版本相同，但 banner 有課程授權序號欄位（顯示剩餘可用天數），透過 Google Apps Script 連線 Google Sheet 檢查，自序號啟用起提供 4 個月使用期限，逾期後「AI 優化」功能停用（其餘功能不受影響）；AI 優化不需要學員自備 API 金鑰，留空即走 Apps Script 代理、用教師存的內建金鑰；網站標題列採紅色 banner 以與本版區隔。詳見 `phoenix-loan-limit/CLAUDE.md`。**這是獨立複製的 `index.html`，不是共用檔案**——根目錄版本異動時不會自動同步過去，需要時手動套用。
+
 ### 桌面版 exe（phoenix-loan/）
 
 `phoenix-loan/PhoenixLoanGenerator.exe` 是可攜式單檔桌面版：`launcher.py` 把 index/manual/README 打包進 exe，執行時於 `127.0.0.1:8770` 起本機伺服器並開預設瀏覽器（**固定 8770 埠**——localStorage 綁定 origin，換埠會讓使用者已填的資料「消失」）。**修改 index.html 後 exe 不會自動更新，需重建**（PowerShell、絕對路徑，`--add-data` 的相對路徑會以 specpath 為準而踩雷）：
 
 ```powershell
-$proj = "C:\Users\mark_\AI Test\phoenix-loan-generator"
+$proj = "C:\Users\mark_\AI Test\政府補助認證產生器\phoenix-loan-generator"
 cd $proj
 python -m PyInstaller --onefile --console --name PhoenixLoanGenerator `
   --distpath "$proj\phoenix-loan" --workpath "$env:TEMP\pyi-build" --specpath "$env:TEMP" `

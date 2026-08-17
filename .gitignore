@@ -1,2 +1,4 @@
 # PyInstaller 產物：重建指令見 CLAUDE.md
 phoenix-loan/PhoenixLoanGenerator.exe
+phoenix-loan-limit/phoenix-loan-limit/PhoenixLoanLimitGenerator.exe
+phoenix-loan-limit/phoenix-loan-limit.zip
