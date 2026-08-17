@@ -107,6 +107,7 @@
     <select id="sampleSelect" style="border-radius:6px; border:none; padding:8px 10px; font-size:.85rem; font-weight:600;"></select>
     <button class="secondary" id="btnLoadSample">載入所選範例</button>
     <button class="danger" id="btnClear">清空重填</button>
+    <button class="secondary" id="btnExportWord">下載 Word 檔案</button>
     <button id="btnPrint">列印／匯出 PDF</button>
   </div>
 </header>
@@ -1035,6 +1036,144 @@ function orPlaceholder(v){
   return (v===undefined||v===null||v==="") ? `<span class="placeholder">（尚未填寫）</span>` : escapeHtml(String(v));
 }
 
+/* ---------------- Word（.docx）匯出 ----------------
+   直接走訪「預覽與列印」已經算好、已套用 placeholder 提示的 #preview DOM（h2~h4／p／table／div.signature-line
+   等標籤），轉成對應的 docx 段落／表格後下載——不另外維護一份 Word 專用樣板，確保 Word 輸出內容永遠跟畫面上
+   看到的預覽一致，不會有兩份樣板各自修改、逐漸失準的問題。docx.js 走 CDN 懶載入（比照上面 pdf.js 的做法），
+   不影響一般開啟頁面的速度。 */
+let _docxLibPromise = null;
+function loadDocxLib(){
+  if(window.docx) return Promise.resolve();
+  if(_docxLibPromise) return _docxLibPromise;
+  _docxLibPromise = new Promise((resolve,reject)=>{
+    const s = document.createElement("script");
+    s.src = "https://cdn.jsdelivr.net/npm/docx@9.7.1/dist/index.iife.min.js";
+    s.onload = ()=>resolve();
+    s.onerror = ()=>reject(new Error("Word 匯出元件載入失敗，請確認網路連線"));
+    document.head.appendChild(s);
+  });
+  return _docxLibPromise;
+}
+// 把一個節點底下的內容拆成「行」，每行是一組 {text, bold, italics, color}——<br> 另起一行，
+// <b>/<strong>／<i>/<em>／span.placeholder 標記對應樣式，遞迴處理巢狀標籤。
+function _docxLinesFromNode(node){
+  const lines = [[]];
+  (function walk(n, style){
+    n.childNodes.forEach(child=>{
+      if(child.nodeType === Node.TEXT_NODE){
+        const t = child.textContent;
+        if(t) lines[lines.length-1].push({text:t, ...style});
+      } else if(child.nodeType === Node.ELEMENT_NODE){
+        const tag = child.tagName.toLowerCase();
+        if(tag === "br"){
+          lines.push([]);
+        } else if(tag === "b" || tag === "strong"){
+          walk(child, {...style, bold:true});
+        } else if(tag === "i" || tag === "em"){
+          walk(child, {...style, italics:true});
+        } else if(tag === "span" && child.classList.contains("placeholder")){
+          walk(child, {...style, italics:true, color:"B45309"});
+        } else {
+          walk(child, style);
+        }
+      }
+    });
+  })(node, {});
+  return lines;
+}
+function _docxRunsFromLine(line){
+  return (line && line.length) ? line.map(r=>new docx.TextRun({text:r.text, bold:!!r.bold, italics:!!r.italics, color:r.color}))
+                                : [new docx.TextRun({text:""})];
+}
+function _docxParagraphsFromNode(node, paraOpts){
+  return _docxLinesFromNode(node).map(line=>new docx.Paragraph({...(paraOpts||{}), children:_docxRunsFromLine(line)}));
+}
+function _docxTableFromElement(tableEl){
+  const rows = Array.from(tableEl.rows).map(tr=>{
+    const cells = Array.from(tr.children).map(cellEl=>{
+      const isHeader = cellEl.tagName.toLowerCase() === "th";
+      const colspan = parseInt(cellEl.getAttribute("colspan")||"1", 10);
+      return new docx.TableCell({
+        children: _docxParagraphsFromNode(cellEl, {spacing:{after:0}}),
+        columnSpan: colspan > 1 ? colspan : undefined,
+        shading: isHeader ? {fill:"F3F4F6"} : undefined,
+        margins: {top:60, bottom:60, left:100, right:100},
+      });
+    });
+    return new docx.TableRow({children: cells});
+  });
+  return new docx.Table({rows, width:{size:100, type:docx.WidthType.PERCENTAGE}});
+}
+// 遞迴走訪容器底下的區塊元素，組成 docx 段落／表格陣列——支援 h1~h4／p／ul,ol／table／div（含簽名列）。
+function _docxItemsFromContainer(container){
+  const items = [];
+  Array.from(container.children).forEach(node=>{
+    const tag = node.tagName.toLowerCase();
+    if(tag === "h1" || tag === "h2"){
+      items.push(..._docxParagraphsFromNode(node, {heading:docx.HeadingLevel.HEADING_1, alignment:docx.AlignmentType.CENTER, spacing:{before:200, after:200}}));
+    } else if(tag === "h3"){
+      items.push(..._docxParagraphsFromNode(node, {heading:docx.HeadingLevel.HEADING_2, spacing:{before:320, after:160}}));
+    } else if(tag === "h4" || tag === "h5" || tag === "h6"){
+      items.push(..._docxParagraphsFromNode(node, {heading:docx.HeadingLevel.HEADING_3, spacing:{before:220, after:110}}));
+    } else if(tag === "p"){
+      const center = node.classList.contains("doc-sub") || (node.getAttribute("style")||"").includes("center");
+      items.push(..._docxParagraphsFromNode(node, {alignment: center?docx.AlignmentType.CENTER:undefined, spacing:{after:120}}));
+    } else if(tag === "ul" || tag === "ol"){
+      Array.from(node.children).forEach(li=>{
+        items.push(..._docxParagraphsFromNode(li, {bullet:{level:0}, spacing:{after:60}}));
+      });
+    } else if(tag === "table"){
+      items.push(_docxTableFromElement(node));
+      items.push(new docx.Paragraph({spacing:{after:120}}));
+    } else if(tag === "div"){
+      const spans = Array.from(node.querySelectorAll(":scope > span"));
+      if(spans.length){
+        const runs = [];
+        spans.forEach((sp,i)=>{
+          if(i>0) runs.push(new docx.TextRun({text:"　　"}));
+          const lines = _docxLinesFromNode(sp);
+          runs.push(..._docxRunsFromLine(lines[0]));
+        });
+        items.push(new docx.Paragraph({children:runs, spacing:{after:120}}));
+      } else {
+        items.push(..._docxItemsFromContainer(node));
+      }
+    } else {
+      items.push(..._docxItemsFromContainer(node));
+    }
+  });
+  return items;
+}
+function sanitizeFilename(name){
+  return (name||"").toString().replace(/[\\/:*?"<>|]/g,"").trim();
+}
+// docTitle：找不到檔名時的預設值；filenameBase：優先採用（通常是事業／計畫／課程名稱）。
+async function exportPreviewAsDocx(docTitle, filenameBase){
+  const btn = document.getElementById("btnExportWord");
+  if(btn){ btn.disabled = true; btn.textContent = "產生中…"; }
+  try{
+    await loadDocxLib();
+    renderPreview();
+    const previewEl = document.getElementById("preview");
+    const doc = new docx.Document({
+      sections: [{ properties:{}, children: _docxItemsFromContainer(previewEl) }],
+    });
+    const blob = await docx.Packer.toBlob(doc);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = (sanitizeFilename(filenameBase) || docTitle) + ".docx";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 5000);
+  }catch(err){
+    alert("Word 匯出失敗：" + (err.message || err));
+  }finally{
+    if(btn){ btn.disabled = false; btn.textContent = "下載 Word 檔案"; }
+  }
+}
+
 function renderPreview(){
   const a = state.applicant, b = state.business, f = state.finance, p = state.plan, o = state.oath;
   const needed = (f.totalFunding||0) - (f.selfFunding||0) - (f.raisedFunding||0) - (f.friendLoan||0) - (f.bankLoanExisting||0) - (f.otherFunding||0);
@@ -1942,6 +2081,9 @@ document.getElementById("btnClear").addEventListener("click", ()=>{
 document.getElementById("btnPrint").addEventListener("click", ()=>{
   document.querySelector('nav.tabs button[data-tab="preview"]').click();
   setTimeout(()=>window.print(), 150);
+});
+document.getElementById("btnExportWord").addEventListener("click", ()=>{
+  exportPreviewAsDocx("微型創業鳳凰貸款申請書", state.business.name || state.applicant.name);
 });
 
 function rebuildAll(){
