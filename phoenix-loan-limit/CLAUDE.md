@@ -30,15 +30,25 @@
 - **跑馬燈**：`#marqueeBar` 是 body 開頭、`<header>` 之前的**一般 flow 元素**（非 fixed；本專案版面是一般文件流＋`nav.tabs { position:sticky; top:0 }`，跟 `mrvideo_s`／`AIvideo_studio` 的 flex 版面不同，故不需要額外 padding-top 補償），獨立 `<script>` IIFE、跟序號授權（`LICENSE_CHECK_URL`／`checkLicense()`）完全無關，**直接呼叫**工作區共用的跑馬燈端點（跟 `mrvideo_s` 的「direct-call」做法一致，沒有整合進本專案自己的 `Code.gs`）：`https://script.google.com/macros/s/AKfycbwKX0.../exec`（POST 空序號，`doPost` 不論序號有效與否都會附帶 `marquee` 陣列），`localStorage` key `phoenixLoanLimitMarquee`，每 20 分鐘重抓一次。改跑馬燈內容直接編輯共用 Google Sheet 即可，不需重新部署，也不會動到本專案自己的授權 Apps Script／Google Sheet。marqueeBar 帶 `no-print` class，列印/PDF/預覽不會印出跑馬燈。
 - 兩項改動後已重建 `phoenix-loan-limit/PhoenixLoanLimitGenerator.exe`（`--add-data` 打包最新 `index.html`）。
 
+## RWD（響應式設計）與加入主畫面（PWA，2026-08-17 新增）
+
+- **RWD 修復**：唯一發現的實際橫向溢出問題在「預覽與列印」的申請書表格——`#preview` 有 `32px 40px` 內距＋表格 `th width:22%` 固定比例欄寬，在窄螢幕（375px 測過）會被 `#preview-wrap` 原本的 `overflow:hidden` 直接裁掉右側內容（看不到、也滑不到，比橫向捲動更糟）。修法：`#preview-wrap` 改 `overflow-x:auto`（＋`-webkit-overflow-scrolling:touch`），`#preview table` 加 `min-width:480px` 讓表格維持可讀寬度、改由外層容器捲動而非硬擠壓文字；新增 `@media print{ #preview-wrap{overflow:visible;} #preview table{min-width:0;} }` 避免列印/PDF 被裁切或意外出現捲軸；另加 `@media (max-width:640px)` 收斂 header/`.card`/`#preview` 內距與 `nav.tabs` 按鈕字級。**其餘分頁（申請人/事業/財務/計畫）在 375px 測試皆無溢出**——`.grid{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}` 與既有 `flex-wrap` 已經夠用，未特別改動。
+- **驗證方式**：本機沒有裝置可直接量測，改用「同頁注入一個固定寬度 375px 的 `<iframe src=同頁網址>`」技巧，在 iframe 的 `contentDocument` 內跑 `getBoundingClientRect()` 掃全部元素找 `right > viewportWidth` 的溢出者，比對修復前後的差異（修復前：`#preview-wrap` 因 `overflow:hidden` 使 `document.scrollWidth` 看起來正常但表格內容被裁掉；修復後：確認 `#preview-wrap` 本身 `scrollWidth > clientWidth` 且 `overflow-x:auto`，代表改成正確的「容器內捲動」而非「裁切」或「整頁溢出」）。`mcp__claude-in-chrome__resize_window` 這次對這個視窗沒有真的生效（`innerWidth` 未隨請求的 390/400 改變，懷疑是這台機器的 Chrome 視窗處於某種鋪滿/貼齊狀態，resize 請求被系統忽略），才改用 iframe 技巧繞過。
+- **加入主畫面（PWA）**：`manifest.json`＋`service-worker.js`（network-first＋同源快取備援，跟 `ai-prompt-generator`/`loan-eligibility-checker` 等 [[pwa-install-rollout]] 已上線工具同一套、已驗證過的骨架，逐字複製再改名稱/顏色）＋`icons/`（192／512／maskable-512／apple-touch-icon 四種尺寸，Pillow 畫「鳳」白字＋`#b91c1c` 紅底，跟本工具 banner 同色，PIL `msjhbd.ttc`）。`<head>` 補齊 `manifest` link／`theme-color`／`apple-touch-icon`／`mobile-web-app-capable`＋`apple-mobile-web-app-capable`（兩個都要，只寫一個 Chrome 會噴 deprecation warning）／`apple-mobile-web-app-status-bar-style`／`apple-mobile-web-app-title`。頁尾新增「📲 加入主畫面」按鈕（`#installBtn`）＋新增 `#toast` 提示元素，安裝邏輯（iOS/macOS Safari 偵測、`beforeinstallprompt`/`appinstalled`、`notify()` 提示）是獨立 `<script>`。
+- **踩坑（沿用 `mrvideo_s` 已記過的教訓，這次事先避開）**：本檔頂部跑馬燈的 `<script>` 是在 `<body>` 一開頭、`<header>` 之前就執行（跟大部分其他專案「跑馬燈放 body 結尾」的慣例不同，是本檔原本就有的設計）。若把安裝腳本跟跑馬燈塞進同一個頂部 `<script>` 區塊，這時候 `#installBtn`／`#toast`（在 `<footer>` 之後才會定義）都還沒被解析出來，`getElementById` 會拿到 `null`。**已改成獨立 `<script>` 放在 `#toast` 那個 `<div>` 之後**（DOM 已經有這兩個元素了才執行），跟頂部跑馬燈的 `<script>` 是兩個完全獨立的區塊。
+- **驗證**：本機 `python -m http.server 8778` 起服務，Chrome 開真實頁面確認 `manifest.json`／`service-worker.js`／四個 icon 皆 200；`navigator.serviceWorker.getRegistration()` 確認狀態變成 `activated`；`beforeinstallprompt` 有實際觸發並被腳本攔截（`deferredPrompt` 非 null，證明頁面被瀏覽器判定為可安裝）；點擊按鈕確實呼叫了 `deferredPrompt.prompt()`（程式化 `.click()` 缺乏真實使用者手勢會被瀏覽器丟 `NotAllowedError`，這是自動化測試本身的已知限制，不是程式碼問題——真人點擊沒有這個限制）。
+- 已重新打包 `phoenix-loan-limit/PhoenixLoanLimitGenerator.exe`，`--add-data` 一併加入 `manifest.json`／`service-worker.js`／`icons/` 三項，讓桌面版也能供應這些檔案（雖然本機 exe 場景「安裝」意義不大，但至少不會 404）。
+
 ## 桌面版 exe（phoenix-loan-limit/）
 
-`phoenix-loan-limit/PhoenixLoanLimitGenerator.exe`（子資料夾與專案本身同名——原本叫 `exe/`，2026-07-23 依使用者要求改名）：做法比照 `../phoenix-loan/`，`launcher.py` 把 `index.html`／`manual.html`／`README.md` 打包進 exe，執行時於 **127.0.0.1:8778** 起本機伺服器（工作區固定埠——8770 一般版、8771 icap、8772 sbir、8773/8774 ai-video-studio、8775 IPA_Kano、8776 Dashboard、8777 Prompt，本專案取 8778，新專案取埠前先查其他子資料夾 CLAUDE.md）。**修改 index.html 後 exe 不會自動更新，需重建**：
+`phoenix-loan-limit/PhoenixLoanLimitGenerator.exe`（子資料夾與專案本身同名——原本叫 `exe/`，2026-07-23 依使用者要求改名）：做法比照 `../phoenix-loan/`，`launcher.py` 把 `index.html`／`manual.html`／`README.md`／`manifest.json`／`service-worker.js`／`icons/`（2026-08-17 加入主畫面功能新增，見上方）打包進 exe，執行時於 **127.0.0.1:8778** 起本機伺服器（工作區固定埠——8770 一般版、8771 icap、8772 sbir、8773/8774 ai-video-studio、8775 IPA_Kano、8776 Dashboard、8777 Prompt，本專案取 8778，新專案取埠前先查其他子資料夾 CLAUDE.md）。**修改 index.html 後 exe 不會自動更新，需重建**：
 
 ```powershell
 $proj = "C:\Users\mark_\AI Test\政府補助認證產生器\phoenix-loan-generator\phoenix-loan-limit"
 python -m PyInstaller --onefile --console --name PhoenixLoanLimitGenerator `
   --distpath "$proj\phoenix-loan-limit" --workpath "$env:TEMP\pyi-build-limit" --specpath "$env:TEMP" `
   --add-data "$proj\index.html;." --add-data "$proj\manual.html;." --add-data "$proj\README.md;." `
+  --add-data "$proj\manifest.json;." --add-data "$proj\service-worker.js;." --add-data "$proj\icons;icons" `
   "$proj\launcher.py"
 ```
 

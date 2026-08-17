@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>微型創業鳳凰貸款申請書產生器</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#b91c1c">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="鳳凰貸款(教學版)">
 <style>
   :root{
     --blue:#2563EB; --blue-dark:#1e3a8a; --bg:#f4f6fb; --card:#ffffff;
@@ -90,7 +97,7 @@
   .note-box{background:#fff7ed; border:1px solid #fdba74; border-radius:8px; padding:10px 12px; font-size:.8rem; color:#9a3412; margin-top:8px;}
 
   /* Preview / printable document */
-  #preview-wrap{background:#fff; border:1px solid var(--border); border-radius:10px; padding:0; overflow:hidden; position:relative;}
+  #preview-wrap{background:#fff; border:1px solid var(--border); border-radius:10px; padding:0; overflow-x:auto; -webkit-overflow-scrolling:touch; position:relative;}
   .doc-watermark{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; overflow:hidden; z-index:1;}
   .doc-watermark img{width:46%; min-width:220px; max-width:360px; opacity:.08; margin:0; border-radius:0; background:none;}
   #preview{padding:32px 40px; font-size:.92rem; line-height:1.9; position:relative; z-index:2;}
@@ -99,7 +106,7 @@
     background:#eef2ff; color:var(--blue-dark); padding:6px 10px; border-radius:6px;
     font-size:1rem; margin:22px 0 10px;
   }
-  #preview table{width:100%; border-collapse:collapse; margin-bottom:10px; font-size:.86rem;}
+  #preview table{width:100%; min-width:480px; border-collapse:collapse; margin-bottom:10px; font-size:.86rem;}
   #preview table td,#preview table th{border:1px solid #b9c2d4; padding:6px 8px; vertical-align:top;}
   #preview table th{background:#f4f6fb; text-align:left; width:22%;}
   #preview p{margin:6px 0;}
@@ -110,9 +117,33 @@
     header,nav.tabs,.card,.no-print{display:none !important;}
     body{background:#fff;}
     main{max-width:none; padding:0;}
-    #preview-wrap{border:none; border-radius:0;}
+    #preview-wrap{border:none; border-radius:0; overflow:visible;}
     #preview{padding:0;}
+    #preview table{min-width:0;}
     .doc-watermark{position:fixed;}
+  }
+
+  .footer-link-btn{
+    background:none; border:none; color:var(--blue); font-size:.78rem; font-weight:400;
+    padding:0; cursor:pointer; text-decoration:underline;
+  }
+  .footer-link-btn:hover{filter:none; color:var(--blue-dark);}
+  .toast{
+    position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(20px);
+    background:#1f2937; color:#fff; padding:10px 18px; border-radius:8px; font-size:.85rem;
+    opacity:0; pointer-events:none; transition:opacity .2s, transform .2s; z-index:5000; max-width:88vw; text-align:center;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  /* RWD：窄螢幕（手機／小平板）調整 */
+  @media (max-width:640px){
+    header{padding:14px 16px;}
+    header h1{font-size:1.05rem;}
+    main{padding:14px 10px 60px;}
+    .card{padding:14px 14px;}
+    #preview{padding:18px 14px;}
+    .license-bar input{width:120px;}
+    nav.tabs button{padding:10px 12px; font-size:.86rem;}
   }
 
   /* 頂部跑馬燈：獨立運作，內容抓自工作區共用的公告 Google Sheet；與序號授權是兩個獨立系統 */
@@ -534,9 +565,76 @@
 </main>
 
 <footer class="no-print" style="text-align:center; padding:16px; font-size:.78rem; color:var(--muted); line-height:1.8;">
-  製作：Mark Tsai（詳見 <a href="manual.html" target="_blank" style="color:var(--blue);">操作手冊</a>）<br>
+  製作：Mark Tsai（詳見 <a href="manual.html" target="_blank" style="color:var(--blue);">操作手冊</a>）
+  ｜<button type="button" id="installBtn" class="footer-link-btn">📲 加入主畫面</button><br>
   本工具僅供教學、課程及個人使用，禁止未經授權公開發布、販售或商業化使用。
 </footer>
+
+<div class="toast no-print" id="toast" role="status"></div>
+
+<script>
+/* 加入主畫面（PWA）— 獨立運作，跟頁首跑馬燈／下面主程式邏輯都無關 */
+(function () {
+  'use strict';
+  var deferredPrompt = null;
+  var btn = document.getElementById('installBtn');
+
+  var ua = navigator.userAgent || '';
+  var isIOSDevice = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var isMacDesktop = /Macintosh/.test(ua) && !isIOSDevice;
+  var isSafariEngine = /^((?!chrome|crios|fxios|edgios|android).)*safari/i.test(ua);
+  var isStandalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+
+  function fallbackMessage() {
+    if (isIOSDevice) return '請點畫面上的「分享」圖示，選「加入主畫面」';
+    if (isMacDesktop && isSafariEngine) return '請用選單列「檔案」→「加入 Dock」（Safari 17 以上）';
+    return '目前瀏覽器不支援安裝，或已安裝過';
+  }
+
+  // 不依賴主程式作用域內的任何函式（獨立 <script>／獨立 IIFE，直接抓 #toast 自己顯示）
+  function notify(msg) {
+    var t = document.getElementById('toast');
+    if (!t) { window.alert(msg); return; }
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(notify._timer);
+    notify._timer = setTimeout(function () { t.classList.remove('show'); }, 2400);
+  }
+
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    deferredPrompt = e;
+  });
+  window.addEventListener('appinstalled', function () {
+    deferredPrompt = null;
+  });
+
+  if (btn) {
+    if (isStandalone) {
+      btn.style.display = 'none';
+    } else {
+      btn.addEventListener('click', function () {
+        if (!deferredPrompt) {
+          notify(fallbackMessage());
+          return;
+        }
+        try {
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then(function () { deferredPrompt = null; });
+        } catch (e) {
+          notify(fallbackMessage());
+        }
+      });
+    }
+  }
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('service-worker.js').catch(function () {});
+    });
+  }
+})();
+</script>
 
 <script>
 /* ---------------- 五個虛構產業範例（僅供 Demo 使用，人名／統編／電話／地址皆為虛構，如有雷同純屬巧合） ---------------- */

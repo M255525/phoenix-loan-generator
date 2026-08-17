@@ -1,0 +1,16 @@
+{
+  "name": "微型創業鳳凰貸款申請書產生器（課程教學版）",
+  "short_name": "鳳凰貸款(教學版)",
+  "description": "微型創業鳳凰貸款申請書填表輔助產生器，課程教學版",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f6fb",
+  "theme_color": "#b91c1c",
+  "lang": "zh-TW",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
