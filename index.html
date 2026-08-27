@@ -68,6 +68,14 @@
   .sum-check.bad{background:#fee2e2; color:var(--danger);}
   .sum-check.warn{background:#fef3c7; color:#b45309;}
   .note-box{background:#fff7ed; border:1px solid #fdba74; border-radius:8px; padding:10px 12px; font-size:.8rem; color:#9a3412; margin-top:8px;}
+  .pl-table{width:100%; border-collapse:collapse; margin-top:8px; font-size:.82rem;}
+  .pl-table th,.pl-table td{border:1px solid var(--border); padding:6px 8px; text-align:center; vertical-align:middle;}
+  .pl-table thead th{background:#eef2ff; color:var(--blue-dark); font-weight:600;}
+  .pl-table tbody th{background:#f8fafc; text-align:left; font-weight:600; white-space:nowrap;}
+  .pl-table input[type=number]{width:100%; min-width:90px; text-align:right;}
+  .pl-table input[type=text]{width:64px; text-align:center; padding:4px 6px; font-size:.78rem;}
+  .pl-table .pl-range{display:flex; align-items:center; justify-content:center; gap:4px; font-weight:400; margin-top:4px;}
+  .pl-table .pl-computed{font-weight:700; color:var(--blue-dark); background:#f8fafc;}
 
   /* Preview / printable document */
   #preview-wrap{background:#fff; border:1px solid var(--border); border-radius:10px; padding:0; overflow:hidden;}
@@ -287,6 +295,63 @@
       <textarea data-path="finance.profitLossNote" rows="5"></textarea>
     </div>
     <div class="note-box">審查人員最常追問：「虧損原因是什麼？之後如何轉正？」請具體說明是草創期成本結構、進貨規模不足，還是其他原因，並與下方「償貸計畫」的獲利假設互相呼應。</div>
+
+    <div class="field full" style="margin-top:14px;">
+      <label>營業損益明細表（依銀行制式申貸書格式逐項填寫，可與上方損益說明互相對照）</label>
+      <p class="hint" style="margin:2px 0 8px;">實際營業未滿1年者，請以預估值填寫，並勾選下方「本表為預估值」加註。</p>
+      <label style="display:flex; align-items:center; gap:6px; font-weight:400; color:var(--text); margin-bottom:6px; font-size:.85rem;">
+        <input type="checkbox" data-path="finance.profitLossDetail.isEstimate" style="width:auto;"> 本表為預估值
+      </label>
+      <div style="overflow-x:auto;">
+        <table class="pl-table">
+          <thead>
+            <tr>
+              <th rowspan="2" style="width:18%;">項目</th>
+              <th>第1個月</th>
+              <th>第1～6個月</th>
+              <th>第1～12個月</th>
+            </tr>
+            <tr>
+              <th><span class="pl-range"><input type="text" data-path="finance.profitLossDetail.month1.dateFrom" placeholder="起（民國）">～<input type="text" data-path="finance.profitLossDetail.month1.dateTo" placeholder="迄（民國）"></span></th>
+              <th><span class="pl-range"><input type="text" data-path="finance.profitLossDetail.month6.dateFrom" placeholder="起（民國）">～<input type="text" data-path="finance.profitLossDetail.month6.dateTo" placeholder="迄（民國）"></span></th>
+              <th><span class="pl-range"><input type="text" data-path="finance.profitLossDetail.month12.dateFrom" placeholder="起（民國）">～<input type="text" data-path="finance.profitLossDetail.month12.dateTo" placeholder="迄（民國）"></span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>①營業收入</th>
+              <td><input type="number" data-path="finance.profitLossDetail.month1.revenue"></td>
+              <td><input type="number" data-path="finance.profitLossDetail.month6.revenue"></td>
+              <td><input type="number" data-path="finance.profitLossDetail.month12.revenue"></td>
+            </tr>
+            <tr>
+              <th>②銷貨成本</th>
+              <td><input type="number" data-path="finance.profitLossDetail.month1.cost"></td>
+              <td><input type="number" data-path="finance.profitLossDetail.month6.cost"></td>
+              <td><input type="number" data-path="finance.profitLossDetail.month12.cost"></td>
+            </tr>
+            <tr>
+              <th>③營業毛利（①－②）</th>
+              <td class="pl-computed" id="plGross_month1">0</td>
+              <td class="pl-computed" id="plGross_month6">0</td>
+              <td class="pl-computed" id="plGross_month12">0</td>
+            </tr>
+            <tr>
+              <th>④營業費用</th>
+              <td><input type="number" data-path="finance.profitLossDetail.month1.expense"></td>
+              <td><input type="number" data-path="finance.profitLossDetail.month6.expense"></td>
+              <td><input type="number" data-path="finance.profitLossDetail.month12.expense"></td>
+            </tr>
+            <tr>
+              <th>⑤營業利潤（③－④）</th>
+              <td class="pl-computed" id="plNet_month1">0</td>
+              <td class="pl-computed" id="plNet_month6">0</td>
+              <td class="pl-computed" id="plNet_month12">0</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
   <div class="card">
@@ -434,6 +499,15 @@
 
 <!-- ============ TAB 5: 預覽與列印 ============ -->
 <section class="tab" data-tab="preview">
+  <div class="card no-print" style="display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;">
+    <div style="flex:1; min-width:220px;">
+      <h2 style="margin-bottom:2px;">個資隱藏</h2>
+      <p class="hint" style="margin:0;">開啟後，預覽、列印與「下載 Word 檔案」都會遮蔽申請人／配偶／聯絡親友的身分證字號、生日、電話、e-mail 與地址，方便排版確認或提供他人參考時降低個資外洩風險。<strong>正式送件前請記得關閉</strong>，確認完整資料無誤。</p>
+    </div>
+    <label style="display:flex; align-items:center; gap:6px; font-weight:600; color:var(--blue-dark); white-space:nowrap;">
+      <input type="checkbox" id="hidePiiToggle" style="width:auto;"> 隱藏個人資料
+    </label>
+  </div>
   <div class="card no-print">
     <h2>切結書確認</h2>
     <label style="display:flex; align-items:center; gap:8px; font-weight:400; font-size:.9rem;">
@@ -488,6 +562,10 @@ const SAMPLE_LIBRARY = {
       finance:{
         lastYearProfitLoss:85000,
         profitLossNote:"本店113年3月開業，前3個月為建立客源之磨合期，第4個月起營收逐漸穩定，累計至今帳列淨利約85,000元。目前每日供應約150份早餐，尖峰時段（7:00-9:00）常因現有設備產能不足而流失排隊客人。",
+        profitLossDetail:{isEstimate:true,
+          month1:{dateFrom:"113/03",dateTo:"113/03",revenue:80000,cost:45000,expense:40000},
+          month6:{dateFrom:"113/03",dateTo:"113/08",revenue:500000,cost:270000,expense:205000},
+          month12:{dateFrom:"113/03",dateTo:"114/02",revenue:1150000,cost:620000,expense:445000}},
         totalFunding:600000, selfFunding:300000, raisedFunding:0, friendLoan:0, bankLoanExisting:0, otherFunding:0,
         loanItems:[],
         existingEquipment:[
@@ -546,6 +624,10 @@ const SAMPLE_LIBRARY = {
       finance:{
         lastYearProfitLoss:-120000,
         profitLossNote:"工作室於112年5月成立，首年為建立品牌知名度，大量參與市集及展覽推廣，行銷與材料成本投入較高，致112年度帳列虧損120,000元。目前接單量穩定成長，客製訂單占比逐月提升。",
+        profitLossDetail:{isEstimate:true,
+          month1:{dateFrom:"112/05",dateTo:"112/05",revenue:15000,cost:9000,expense:25000},
+          month6:{dateFrom:"112/05",dateTo:"112/10",revenue:150000,cost:85000,expense:140000},
+          month12:{dateFrom:"112/05",dateTo:"113/04",revenue:380000,cost:210000,expense:290000}},
         totalFunding:500000, selfFunding:200000, raisedFunding:0, friendLoan:0, bankLoanExisting:0, otherFunding:0,
         loanItems:[
           {type:"credit", name:"一般信用貸款", amount:150000, purpose:"創業初期週轉", monthlyPayment:4200, bank:""}
@@ -609,6 +691,10 @@ const SAMPLE_LIBRARY = {
       finance:{
         lastYearProfitLoss:45000,
         profitLossNote:"本店112年9月開業，首年因設備尚未齊全，僅能承接中小型犬隻美容，營運至今帳列淨利45,000元。近期詢問度提升但因烘毛設備效能不足，單日服務隻數受限，常需請客人候補預約。",
+        profitLossDetail:{isEstimate:true,
+          month1:{dateFrom:"112/09",dateTo:"112/09",revenue:45000,cost:22000,expense:30000},
+          month6:{dateFrom:"112/09",dateTo:"113/02",revenue:300000,cost:140000,expense:155000},
+          month12:{dateFrom:"112/09",dateTo:"113/08",revenue:680000,cost:310000,expense:325000}},
         totalFunding:450000, selfFunding:200000, raisedFunding:0, friendLoan:0, bankLoanExisting:0, otherFunding:0,
         loanItems:[
           {type:"vehicle", name:"機車貸款", amount:60000, purpose:"代步交通工具", monthlyPayment:2500, bank:""}
@@ -670,6 +756,10 @@ const SAMPLE_LIBRARY = {
       finance:{
         lastYearProfitLoss:-60000,
         profitLossNote:"品牌於113年1月成立，首季投入產品開發、檢驗及包裝設計成本較高，加上網路廣告測試期間轉換率尚在優化，帳列虧損60,000元。近2個月透過社群口碑帶動，月訂單量已由30筆成長至80筆。",
+        profitLossDetail:{isEstimate:true,
+          month1:{dateFrom:"113/01",dateTo:"113/01",revenue:20000,cost:9000,expense:28000},
+          month6:{dateFrom:"113/01",dateTo:"113/06",revenue:180000,cost:80000,expense:150000},
+          month12:{dateFrom:"113/01",dateTo:"113/12",revenue:520000,cost:230000,expense:350000}},
         totalFunding:400000, selfFunding:150000, raisedFunding:0, friendLoan:50000, bankLoanExisting:0, otherFunding:0,
         loanItems:[],
         existingEquipment:[
@@ -729,6 +819,10 @@ const SAMPLE_LIBRARY = {
       finance:{
         lastYearProfitLoss:30000,
         profitLossNote:"本事業113年2月成立，目前團隊含本人共3人，因清潔設備仍以家用型為主，效率較低，單日可承接案件數受限，帳列淨利30,000元。近期詢問量增加，常需排隊等候2週以上才能安排到府服務。",
+        profitLossDetail:{isEstimate:true,
+          month1:{dateFrom:"113/02",dateTo:"113/02",revenue:40000,cost:23000,expense:25000},
+          month6:{dateFrom:"113/02",dateTo:"113/07",revenue:340000,cost:190000,expense:155000},
+          month12:{dateFrom:"113/02",dateTo:"114/01",revenue:760000,cost:420000,expense:310000}},
         totalFunding:550000, selfFunding:250000, raisedFunding:0, friendLoan:0, bankLoanExisting:0, otherFunding:0,
         loanItems:[
           {type:"vehicle", name:"貨車貸款", amount:200000, purpose:"載運清潔設備交通車輛", monthlyPayment:5500, bank:""}
@@ -771,7 +865,12 @@ const EMPTY_STATE = {
   business:{name:"",regType:"company",establishDate:"",taxId:"",isFranchise:"false",franchiseName:"",
     employeeCount:0,regAddress:"",regPhone:"",operateAddress:"",operatePhone:"",factoryAddress:"",factoryPhone:"",
     mainProducts:"",businessItems:""},
-  finance:{lastYearProfitLoss:0,profitLossNote:"",totalFunding:0,selfFunding:0,raisedFunding:0,friendLoan:0,
+  finance:{lastYearProfitLoss:0,profitLossNote:"",
+    profitLossDetail:{isEstimate:false,
+      month1:{dateFrom:"",dateTo:"",revenue:0,cost:0,expense:0},
+      month6:{dateFrom:"",dateTo:"",revenue:0,cost:0,expense:0},
+      month12:{dateFrom:"",dateTo:"",revenue:0,cost:0,expense:0}},
+    totalFunding:0,selfFunding:0,raisedFunding:0,friendLoan:0,
     bankLoanExisting:0,otherFunding:0,loanItems:[],existingEquipment:[{item:"",note:""}],fundUse:[{item:"",amount:0}],
     loanPurposeExplanation:"",requestedLoanAmount:0,loanPeriodYears:7,bank:"first",bankBranch:""},
   plan:{productService:"",businessHours:"",customerSource:"",coOperationNote:"",targetMarketAnalysis:"",
@@ -785,6 +884,7 @@ const LOAN_TYPE_LABELS = {gov:"政府貸款", enterprise:"企業貸款", realest
 
 const DEFAULT_SAMPLE_KEY = "breakfast";
 let state = loadState() || JSON.parse(JSON.stringify(SAMPLE_LIBRARY[DEFAULT_SAMPLE_KEY].state));
+let hidePII = localStorage.getItem("phoenixLoanHidePII") === "1";
 
 function loadState(){
   try{
@@ -1015,6 +1115,21 @@ function refreshDerived(){
       : `⚠ 資金用途明細加總 ${fmt(fundUseSum)} 元，與尚需資金總額 ${fmt(needed)} 元不相符，請調整`;
     fundUseEl.className = "sum-check " + (match ? "ok" : "bad");
   }
+  refreshProfitLossTable();
+}
+
+function refreshProfitLossTable(){
+  const pl = state.finance.profitLossDetail;
+  if(!pl) return;
+  ["month1","month6","month12"].forEach(k=>{
+    const seg = pl[k] || {};
+    const gross = (Number(seg.revenue)||0) - (Number(seg.cost)||0);
+    const net = gross - (Number(seg.expense)||0);
+    const gEl = document.getElementById(`plGross_${k}`);
+    const nEl = document.getElementById(`plNet_${k}`);
+    if(gEl) gEl.textContent = fmt(gross);
+    if(nEl) nEl.textContent = fmt(net);
+  });
 }
 
 /* ---------------- Preview rendering ---------------- */
@@ -1034,6 +1149,36 @@ function escapeHtml(s){
 }
 function orPlaceholder(v){
   return (v===undefined||v===null||v==="") ? `<span class="placeholder">（尚未填寫）</span>` : escapeHtml(String(v));
+}
+
+/* ---------------- 個資隱藏（僅影響預覽／列印／Word 匯出畫面，不影響表單內實際儲存的資料） ---------------- */
+function piiField(v, maskFn){
+  if(v===undefined||v===null||v==="") return `<span class="placeholder">（尚未填寫）</span>`;
+  const s = String(v);
+  return escapeHtml(hidePII && maskFn ? maskFn(s) : s);
+}
+function maskName(s){
+  const chars = Array.from(s);
+  return chars.length <= 1 ? s : chars[0] + "○".repeat(chars.length - 1);
+}
+function maskMiddle(s, keepStart, keepEnd){
+  const chars = Array.from(s);
+  if(chars.length <= keepStart + keepEnd) return "*".repeat(chars.length);
+  return chars.slice(0, keepStart).join("") + "*".repeat(chars.length - keepStart - keepEnd) + chars.slice(chars.length - keepEnd).join("");
+}
+function maskId(s){ return maskMiddle(s, 2, 1); }
+function maskPhone(s){ return maskMiddle(s, 2, 2); }
+function maskEmail(s){
+  const m = s.match(/^(.)([^@]*)(@.*)$/);
+  return m ? m[1] + "*".repeat(Math.max(m[2].length, 1)) + m[3] : maskMiddle(s, 1, 0);
+}
+function maskBirthDate(s){
+  return s.replace(/(\d{1,3}\s*年)\s*\d{1,2}\s*月\s*\d{1,2}\s*日/, "$1○月○日");
+}
+function maskAddress(s){
+  const noZip = s.replace(/^\d{3,6}/, "");
+  const m = noZip.match(/^.{2,4}(?:市|縣).{1,4}?(?:區|鄉|鎮|市)/);
+  return (m ? m[0] : noZip.slice(0, 6)) + "（詳細地址已隱藏）";
 }
 
 /* ---------------- Word（.docx）匯出 ----------------
@@ -1056,6 +1201,8 @@ function loadDocxLib(){
 }
 // 把一個節點底下的內容拆成「行」，每行是一組 {text, bold, italics, color}——<br> 另起一行，
 // <b>/<strong>／<i>/<em>／span.placeholder 標記對應樣式，遞迴處理巢狀標籤。
+// <p>/<div> 視同區塊分隔（前後各斷一行）——nl2br() 把多段文字組成連續的 <p>...</p>，
+// 且這些內容常被放進表格 <td> 裡（如損益說明、經營現況各段），若不斷行會被此函式合併成一段連續文字。
 function _docxLinesFromNode(node){
   const lines = [[]];
   (function walk(n, style){
@@ -1073,12 +1220,17 @@ function _docxLinesFromNode(node){
           walk(child, {...style, italics:true});
         } else if(tag === "span" && child.classList.contains("placeholder")){
           walk(child, {...style, italics:true, color:"B45309"});
+        } else if(tag === "p" || tag === "div"){
+          if(lines[lines.length-1].length) lines.push([]);
+          walk(child, style);
+          if(lines[lines.length-1].length) lines.push([]);
         } else {
           walk(child, style);
         }
       }
     });
   })(node, {});
+  if(lines.length > 1 && lines[lines.length-1].length === 0) lines.pop();
   return lines;
 }
 function _docxRunsFromLine(line){
@@ -1178,7 +1330,15 @@ function renderPreview(){
   const a = state.applicant, b = state.business, f = state.finance, p = state.plan, o = state.oath;
   const needed = (f.totalFunding||0) - (f.selfFunding||0) - (f.raisedFunding||0) - (f.friendLoan||0) - (f.bankLoanExisting||0) - (f.otherFunding||0);
 
-  const contactsHtml = a.contacts.map((c,i)=>`親友${i+1}：姓名：${orPlaceholder(c.name)}，關係：${orPlaceholder(c.relation)}，聯絡電話：${orPlaceholder(c.phone)}`).join("<br>");
+  const plDetail = f.profitLossDetail || {};
+  const plRow = (k)=>{
+    const seg = plDetail[k] || {};
+    const revenue = Number(seg.revenue)||0, cost = Number(seg.cost)||0, expense = Number(seg.expense)||0;
+    return {revenue, cost, gross: revenue-cost, expense, net: revenue-cost-expense, dateFrom: seg.dateFrom||"", dateTo: seg.dateTo||""};
+  };
+  const plM1 = plRow("month1"), plM6 = plRow("month6"), plM12 = plRow("month12");
+
+  const contactsHtml = a.contacts.map((c,i)=>`親友${i+1}：姓名：${piiField(c.name, maskName)}，關係：${orPlaceholder(c.relation)}，聯絡電話：${piiField(c.phone, maskPhone)}`).join("<br>");
   const experienceRows = a.experience.map(e=>`<tr><td>${orPlaceholder(e.company)}</td><td>${orPlaceholder(e.title)}</td><td>${orPlaceholder(e.startDate)}</td><td>${orPlaceholder(e.endDate)}</td></tr>`).join("");
   const trainingRows = a.training.length
     ? a.training.map(t=>`<tr><td>${orPlaceholder(t.institute)}</td><td>${orPlaceholder(t.field)}</td><td>${orPlaceholder(t.startDate)}</td><td>${orPlaceholder(t.endDate)}</td><td>${orPlaceholder(t.cert)}</td></tr>`).join("")
@@ -1200,16 +1360,16 @@ function renderPreview(){
 
   const html = `
     <h2 class="doc-title">微型創業鳳凰貸款　申請書</h2>
-    <p style="text-align:center;color:var(--muted);font-size:.8rem;">申請人：${orPlaceholder(a.name)}　所營事業：${orPlaceholder(b.name)}</p>
+    <p style="text-align:center;color:var(--muted);font-size:.8rem;">申請人：${piiField(a.name, maskName)}　所營事業：${orPlaceholder(b.name)}</p>
 
     <h3 class="section-title">壹、申請人基本資料</h3>
     <table>
-      <tr><th>姓名</th><td>${orPlaceholder(a.name)}</td><th>出生年月日</th><td>${orPlaceholder(a.birthDate)}</td></tr>
-      <tr><th>身分證統一編號</th><td>${orPlaceholder(a.idNumber)}</td><th>聯絡電話／手機</th><td>${orPlaceholder(a.phone)} / ${orPlaceholder(a.mobile)}</td></tr>
-      <tr><th>e-mail</th><td>${orPlaceholder(a.email)}</td><th>傳真</th><td>${orPlaceholder(a.fax)}</td></tr>
-      <tr><th>婚姻狀況</th><td colspan="3">${MARITAL_LABEL[a.maritalStatus]}${a.maritalStatus==="married"? `（配偶：${orPlaceholder(a.spouseName)}，身分證：${orPlaceholder(a.spouseId)}，職業：${orPlaceholder(a.spouseJob)}，手機：${orPlaceholder(a.spouseMobile)}）` : ""}</td></tr>
-      <tr><th>戶籍地址</th><td colspan="3">${orPlaceholder(a.householdAddress)}</td></tr>
-      <tr><th>通訊地址</th><td colspan="3">${orPlaceholder(a.mailingAddress)}</td></tr>
+      <tr><th>姓名</th><td>${piiField(a.name, maskName)}</td><th>出生年月日</th><td>${piiField(a.birthDate, maskBirthDate)}</td></tr>
+      <tr><th>身分證統一編號</th><td>${piiField(a.idNumber, maskId)}</td><th>聯絡電話／手機</th><td>${piiField(a.phone, maskPhone)} / ${piiField(a.mobile, maskPhone)}</td></tr>
+      <tr><th>e-mail</th><td>${piiField(a.email, maskEmail)}</td><th>傳真</th><td>${piiField(a.fax, maskPhone)}</td></tr>
+      <tr><th>婚姻狀況</th><td colspan="3">${MARITAL_LABEL[a.maritalStatus]}${a.maritalStatus==="married"? `（配偶：${piiField(a.spouseName, maskName)}，身分證：${piiField(a.spouseId, maskId)}，職業：${orPlaceholder(a.spouseJob)}，手機：${piiField(a.spouseMobile, maskPhone)}）` : ""}</td></tr>
+      <tr><th>戶籍地址</th><td colspan="3">${piiField(a.householdAddress, maskAddress)}</td></tr>
+      <tr><th>通訊地址</th><td colspan="3">${piiField(a.mailingAddress, maskAddress)}</td></tr>
       <tr><th>聯絡親友</th><td colspan="3">${contactsHtml || '<span class="placeholder">（尚未填寫）</span>'}</td></tr>
       <tr><th>最近一次失業週期</th><td>${UNEMP_LABEL[a.unemploymentPeriod]}</td><th>身分別</th><td>${IDENTITY_LABEL[a.identityType]}</td></tr>
       <tr><th>其他身分別</th><td>${otherIdText}</td><th>教育程度</th><td>${EDU_LABEL[a.education]}</td></tr>
@@ -1243,6 +1403,15 @@ function renderPreview(){
       <tr><th>損益說明</th><td>${nl2br(f.profitLossNote)}</td></tr>
     </table>
     <table>
+      <tr><th colspan="4">申貸前1年（或新設立第1年）之營業損益${plDetail.isEstimate? "（實際營業未滿1年，本表為預估值）":""}</th></tr>
+      <tr><th>項目</th><th>第1個月<br>（${orPlaceholder(plM1.dateFrom)}～${orPlaceholder(plM1.dateTo)}）</th><th>第1～6個月<br>（${orPlaceholder(plM6.dateFrom)}～${orPlaceholder(plM6.dateTo)}）</th><th>第1～12個月<br>（${orPlaceholder(plM12.dateFrom)}～${orPlaceholder(plM12.dateTo)}）</th></tr>
+      <tr><th>①營業收入</th><td>${fmt(plM1.revenue)} 元</td><td>${fmt(plM6.revenue)} 元</td><td>${fmt(plM12.revenue)} 元</td></tr>
+      <tr><th>②銷貨成本</th><td>${fmt(plM1.cost)} 元</td><td>${fmt(plM6.cost)} 元</td><td>${fmt(plM12.cost)} 元</td></tr>
+      <tr><th>③營業毛利（①－②）</th><td>${fmt(plM1.gross)} 元</td><td>${fmt(plM6.gross)} 元</td><td>${fmt(plM12.gross)} 元</td></tr>
+      <tr><th>④營業費用</th><td>${fmt(plM1.expense)} 元</td><td>${fmt(plM6.expense)} 元</td><td>${fmt(plM12.expense)} 元</td></tr>
+      <tr><th>⑤營業利潤（③－④）</th><td>${fmt(plM1.net)} 元</td><td>${fmt(plM6.net)} 元</td><td>${fmt(plM12.net)} 元</td></tr>
+    </table>
+    <table>
       <tr><th>本計畫資金總額</th><td>${fmt(f.totalFunding)} 元</td><th>①自備金額</th><td>${fmt(f.selfFunding)} 元</td></tr>
       <tr><th>②標會金額</th><td>${fmt(f.raisedFunding)} 元</td><th>③親友借款</th><td>${fmt(f.friendLoan)} 元</td></tr>
       <tr><th>④金融機構貸款</th><td>${fmt(f.bankLoanExisting)} 元</td><th>⑤其他資金</th><td>${fmt(f.otherFunding)} 元</td></tr>
@@ -1271,44 +1440,41 @@ function renderPreview(){
     </table>
 
     <h3 class="section-title">肆、創業貸款計畫書</h3>
-    <p><strong>一、經營現況</strong></p>
-    <p>（一）產品或服務內容、主要用途、功能、特點及售價</p>
-    ${nl2br(p.productService)}
-    <p>（二）營業時間、尖峰時段、人潮特性</p>
-    ${nl2br(p.businessHours)}
-    <p>（三）現有或潛在客源／訂單</p>
-    ${nl2br(p.customerSource)}
-    <p>（四）與他人共同經營及具體分工說明</p>
-    ${p.coOperationNote ? nl2br(p.coOperationNote) : "<p>無共同經營者，免填。</p>"}
-
-    <p><strong>二、市場分析</strong></p>
-    <p>（一）目標市場、定價、銷售方式、如何擴大客源、競爭優勢</p>
-    ${nl2br(p.targetMarketAnalysis)}
-    <p>（二）市場潛力及未來3年展望</p>
-    ${nl2br(p.marketOutlook)}
-
-    <p><strong>三、償貸計畫</strong></p>
     <table>
+      <tr><th colspan="2">一、經營現況</th></tr>
+      <tr><th>（一）產品或服務內容、主要用途、功能、特點及售價</th><td>${nl2br(p.productService)}</td></tr>
+      <tr><th>（二）營業時間、尖峰時段、人潮特性</th><td>${nl2br(p.businessHours)}</td></tr>
+      <tr><th>（三）現有或潛在客源／訂單</th><td>${nl2br(p.customerSource)}</td></tr>
+      <tr><th>（四）與他人共同經營及具體分工說明</th><td>${p.coOperationNote ? nl2br(p.coOperationNote) : "<p>無共同經營者，免填。</p>"}</td></tr>
+    </table>
+    <table>
+      <tr><th colspan="2">二、市場分析</th></tr>
+      <tr><th>（一）目標市場、定價、銷售方式、如何擴大客源、競爭優勢</th><td>${nl2br(p.targetMarketAnalysis)}</td></tr>
+      <tr><th>（二）市場潛力及未來3年展望</th><td>${nl2br(p.marketOutlook)}</td></tr>
+    </table>
+    <table>
+      <tr><th colspan="4">三、償貸計畫</th></tr>
       <tr><th>第1、2年預估淨利</th><td>${fmt(p.repayment.year1_2NetProfit)} 元</td><th>每月攤還本金</th><td>${fmt(p.repayment.monthlyPrincipal1_2)} 元</td></tr>
       <tr><th>第3年起預估淨利</th><td>${fmt(p.repayment.year3NetProfit)} 元</td><th>每月攤還本息（利率${p.repayment.interestRate}%）</th><td>${fmt(p.repayment.monthlyPayment3)} 元</td></tr>
+      <tr><th>獲利轉正說明</th><td colspan="3">${nl2br(p.profitBridgeExplanation)}</td></tr>
     </table>
-    <p>獲利轉正說明：</p>
-    ${nl2br(p.profitBridgeExplanation)}
-
-    <p><strong>四、自傳簡述（含創業動機）</strong></p>
-    ${nl2br(p.autobiography)}
+    <table>
+      <tr><th colspan="2">四、自傳簡述（含創業動機）</th></tr>
+      <tr><td colspan="2">${nl2br(p.autobiography)}</td></tr>
+    </table>
 
     <h3 class="section-title">伍、切結書</h3>
-    <p>具結人 ${orPlaceholder(a.name)} 為申請「微型創業鳳凰貸款」，經詳閱本貸款相關規定，切結同意完全遵守要點所載各款事項。</p>
+    <p>具結人 ${piiField(a.name, maskName)} 為申請「微型創業鳳凰貸款」，經詳閱本貸款相關規定，切結同意完全遵守要點所載各款事項。</p>
     <p>${o.agree ? "☑" : "☐"} 本人已詳閱、瞭解並同意上述各款事項</p>
     <div class="signature-line">
-      <span>具結人：${orPlaceholder(a.name)}（簽名或蓋章）</span>
-      <span>身分證統一編號：${orPlaceholder(a.idNumber)}</span>
+      <span>具結人：${piiField(a.name, maskName)}（簽名或蓋章）</span>
+      <span>身分證統一編號：${piiField(a.idNumber, maskId)}</span>
     </div>
     <div class="signature-line">
-      <span>住址：${orPlaceholder(a.mailingAddress)}</span>
+      <span>住址：${piiField(a.mailingAddress, maskAddress)}</span>
       <span>中華民國 ${orPlaceholder(o.signDate)}</span>
     </div>
+    ${hidePII ? `<p style="text-align:center;color:var(--danger);font-size:.8rem;margin-top:14px;">※ 個資隱藏模式已開啟，以上部分欄位為遮蔽顯示，正式送件前請於「五、預覽與列印」關閉此選項並確認完整資料無誤。</p>` : ""}
   `;
   document.getElementById("preview").innerHTML = html;
 }
@@ -1635,15 +1801,17 @@ function parseApplication(text){
     if(bm){ st.finance.bank = key; st.finance.bankBranch = (bm[1]||"").trim(); found("申請貸款銀行", label + " " + (bm[1]||"") + "分行"); break; }
   }
 
-  /* --- 計畫書長文 --- */
+  /* --- 肆、創業貸款計畫書（一、經營現況／二、市場分析／三、償貸計畫／四、自傳簡述） ---
+     官方書表各子項的完整措辭（是否含「請說明」前綴）未必每份文件一致，故前綴一律設為可省略，
+     只鎖定名詞關鍵字（產品或服務內容／營業時間／市場潛力等），避免因措辭差異整段抓不到。 */
   const planFields = [
-    ["productService", /[（(]一[）)]\s*請說明產品或服務內容[^\n]*\n?/, /[（(]二[）)]\s*請說明營業時間/, "產品或服務內容"],
-    ["businessHours", /[（(]二[）)]\s*請說明營業時間[^\n]*\n?/, /[（(]三[）)]\s*現有或潛在客源/, "營業時間"],
-    ["customerSource", /[（(]三[）)]\s*現有或潛在客源[^\n]*\n?/, /[（(]四[）)]\s*與他人共同/, "現有或潛在客源"],
-    ["coOperationNote", /[（(]四[）)]\s*與他人共同[^\n]*\n?/, /二、\s*市場分析/, "共同經營說明"],
-    ["targetMarketAnalysis", /二、\s*市場分析[\s\S]{0,80}?[（(]一[）)][^\n]*\n?/, /[（(]二[）)]\s*請說明市場潛力/, "目標市場分析"],
-    ["marketOutlook", /[（(]二[）)]\s*請說明市場潛力[^\n]*\n?/, /三、\s*償貸計畫/, "市場潛力展望"],
-    ["autobiography", /四、\s*自傳簡述[^\n]*\n?/, /伍、|切結書|具結人/, "自傳簡述"]
+    ["productService", /[（(]一[）)]\s*(?:請說明)?產品或服務內容[^\n]*\n?/, /[（(]二[）)]\s*(?:請說明)?營業時間/, "一（一）產品或服務內容"],
+    ["businessHours", /[（(]二[）)]\s*(?:請說明)?營業時間[^\n]*\n?/, /[（(]三[）)]\s*(?:請說明)?現有或潛在客源/, "一（二）營業時間"],
+    ["customerSource", /[（(]三[）)]\s*(?:請說明)?現有或潛在客源[^\n]*\n?/, /[（(]四[）)]\s*(?:請說明)?與他人共同/, "一（三）現有或潛在客源"],
+    ["coOperationNote", /[（(]四[）)]\s*(?:請說明)?與他人共同[^\n]*\n?/, /二、\s*市場分析/, "一（四）共同經營說明"],
+    ["targetMarketAnalysis", /二、\s*市場分析[\s\S]{0,80}?[（(]一[）)][^\n]*\n?/, /[（(]二[）)]\s*(?:請說明)?市場潛力/, "二（一）目標市場分析"],
+    ["marketOutlook", /[（(]二[）)]\s*(?:請說明)?市場潛力[^\n]*\n?/, /三、\s*償貸計畫/, "二（二）市場潛力展望"],
+    ["autobiography", /四、\s*自傳簡述[^\n]*\n?/, /伍、|切結書|具結人/, "四、自傳簡述"]
   ];
   for(const [key, sRe, eRe, label] of planFields){
     const v = cleanBlock(sliceBetween(text, sRe, eRe));
@@ -1658,7 +1826,7 @@ function parseApplication(text){
   if(rateM) st.plan.repayment.interestRate = parseFloat(rateM[1]);
   const princM = repaySlice.match(/攤還本金\s*([\d,，]+)/);
   if(princM) st.plan.repayment.monthlyPrincipal1_2 = parseNum(princM[1]);
-  if(profits.length || rateM) found("償貸計畫數字", "已擷取部分數字");
+  if(profits.length || rateM) found("三、償貸計畫數字", "已擷取部分數字");
 
   return {newState: st, report};
 }
@@ -2100,6 +2268,13 @@ function rebuildAll(){
 populateSampleSelect();
 initAiPanel();
 if(localStorage.getItem("phoenixLoanBackup")) document.getElementById("btnRestoreBackup").disabled = false;
+const hidePiiEl = document.getElementById("hidePiiToggle");
+hidePiiEl.checked = hidePII;
+hidePiiEl.addEventListener("change", ()=>{
+  hidePII = hidePiiEl.checked;
+  localStorage.setItem("phoenixLoanHidePII", hidePII ? "1" : "0");
+  renderPreview();
+});
 bindSimpleInputs();
 renderMaritalRadio();
 renderOtherIdentities();
