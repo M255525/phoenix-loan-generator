@@ -441,7 +441,7 @@
         <select id="aiProvider"></select>
       </div>
       <div class="field"><label>模型（可自行修改）</label><input type="text" id="aiModel"></div>
-      <div class="field"><label>API 金鑰</label><input type="password" id="aiKey" placeholder="貼上你的 API key" autocomplete="off"></div>
+      <div class="field"><label>API 金鑰</label><span style="position:relative;display:block;"><input type="password" id="aiKey" placeholder="貼上你的 API key" autocomplete="off" style="padding-right:34px;box-sizing:border-box;"><button type="button" onclick="var i=this.previousElementSibling;i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'👁':'🙈';" title="顯示／隱藏金鑰" aria-label="顯示／隱藏金鑰" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:15px;padding:4px 6px;opacity:.65;line-height:1;">👁</button></span></div>
     </div>
     <div class="field full" style="margin-top:10px;">
       <label>優化方向提示詞（選填）——告訴 AI 你希望計畫書往哪個方向強化</label>
