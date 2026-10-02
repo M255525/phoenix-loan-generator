@@ -158,6 +158,7 @@
   #marqueeBar{height:26px; background:#111827; overflow:hidden; display:none; align-items:center;}
   #marqueeBar.show{display:flex;}
   #marqueeTrack{display:inline-block; white-space:nowrap; padding-left:100%; font-size:.76rem; font-weight:600; color:#fbbf24; animation:marquee-scroll 30s linear infinite;}
+  #marqueeBar:hover #marqueeTrack{animation-play-state:paused}
   @keyframes marquee-scroll{from{transform:translateX(0);} to{transform:translateX(-50%);}}
 </style>
 </head>
