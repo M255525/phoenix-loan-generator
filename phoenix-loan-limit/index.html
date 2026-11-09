@@ -748,6 +748,9 @@
 </script>
 
 <script>
+/* Gemini 已下架／不存在的模型 ID 自動換成現役模型（2026-11 體檢）：新申請的 AI Studio 金鑰呼叫 2.5／2.0 系列會被拒；也順便去掉多打的空白與 models/ 前綴 */
+function geminiModelFix(m){var r={'gemini-2.5-flash': 'gemini-3.6-flash', 'gemini-2.5-flash-lite': 'gemini-3.5-flash-lite', 'gemini-2.5-pro': 'gemini-3.8-flash', 'gemini-2.0-flash': 'gemini-3.6-flash', 'gemini-2.0-flash-001': 'gemini-3.6-flash', 'gemini-2.0-flash-lite': 'gemini-3.1-flash-lite', 'gemini-1.5-flash': 'gemini-3.6-flash', 'gemini-1.5-pro': 'gemini-3.1-pro-preview', 'gemini-3-pro': 'gemini-3.1-pro-preview', 'gemini-3-pro-preview': 'gemini-3.1-pro-preview', 'gemini-3.5-pro': 'gemini-3.1-pro-preview', 'gemini-3.1-flash-lite-preview': 'gemini-3.1-flash-lite'};m=String(m||'').trim().replace(/^models\//,'');return r[m]||m;}
+
 /* ---------------- 五個虛構產業範例（僅供 Demo 使用，人名／統編／電話／地址皆為虛構，如有雷同純屬巧合） ---------------- */
 const SAMPLE_LIBRARY = {
 
@@ -2499,7 +2502,7 @@ async function callLLM(provider, model, apiKey, prompt, serial, onRetry){
     extract = (d)=>d.choices?.[0]?.message?.content || (()=>{throw new Error("回應中沒有文字內容")})();
   } else if(provider === "gemini"){
     // 金鑰放 header（x-goog-api-key），不放 URL 參數
-    url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
+    url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(geminiModelFix(model))}:generateContent`;
     headers = {"content-type": "application/json", "x-goog-api-key": apiKey};
     body = {contents: [{parts: [{text: prompt}]}]};
     extract = (d)=>{
