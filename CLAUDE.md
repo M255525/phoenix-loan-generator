@@ -33,6 +33,8 @@
   - `buildAiPrompt()` 把結構化事實（數字）＋現有段落＋humanizer 風格要求組成 prompt，要求模型**只重寫 `AI_FIELDS` 列的 8 個敘述欄位**、不得捏造數字、缺事實用【】標示；數字欄位（攤還、金額）一律不交給模型。回應以 `extractJsonObject()` 寬鬆解析（容忍 ```json 圍欄與前後夾雜文字）。
   - 套用前備份到同一個 `phoenixLoanBackup`，與規則式生成共用「復原生成前內容」按鈕。逾時 180 秒（`AbortSignal.timeout`，每次嘗試各自計時）；遇暫時性錯誤（429/500/503/529）自動重試最多 2 次（間隔 8、16 秒），重試進度顯示於 `#aiReport`（與 sbir-generator／icap-generator 為同一套實作，修改時互相參照）。
 
+- **從「開店前置清單」帶入**（2026-11-13）：`shop-opening-checklist` 的 AI 助手分頁開 `https://m255525.github.io/phoenix-loan-generator/#shopImport=<base64url JSON>`。`offerShopImport()`（init 最後呼叫）讀完立刻 `replaceState` 清掉 hash，`cleanShopImport()` 只收白名單欄位（business.name/regType/employeeCount/mainProducts、finance.totalFunding/selfFunding/requestedLoanAmount/fundUse、plan 五段），在 `<main>` 上方插提示列（不用 `confirm()`），按「套用」才寫入；套用前備份到 `phoenixLoanBackup`。`startedFromSample`（載入時沒有 phoenixLoanState）→ 從 `EMPTY_STATE` 開始，避免混到早餐店範例的虛構申請人。資金用途是整份開辦預算，跟「尚需資金」對不起來是預期的，提示列會請使用者刪減。教學版 `phoenix-loan-limit/` 沒有這個功能。**測試注意**：同網址只改 hash 不會重新載入頁面，要先切到別頁再開。
+
 ## 指令
 
 無建置/測試指令。修改 `index.html` 後直接用瀏覽器開啟驗證即可（若本機未連接 Preview MCP，可用 `python -m http.server <port> --directory phoenix-loan-generator` 暫時起一個靜態伺服器測試，測完記得關閉）。
