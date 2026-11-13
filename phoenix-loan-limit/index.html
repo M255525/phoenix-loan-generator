@@ -1104,6 +1104,7 @@ const LOAN_TYPE_LABELS = {gov:"政府貸款", enterprise:"企業貸款", realest
   credit:"一般信用貸款", cashcard:"現金卡貸款", creditcard:"信用卡未繳清", other:"其他"};
 
 const DEFAULT_SAMPLE_KEY = "breakfast";
+const startedFromSample = !loadState();   // 還沒填過（畫面是範例），從開店前置清單帶入時改用空白申請書
 let state = loadState() || JSON.parse(JSON.stringify(SAMPLE_LIBRARY[DEFAULT_SAMPLE_KEY].state));
 let hidePII = localStorage.getItem("phoenixLoanHidePII") === "1";
 
@@ -2662,6 +2663,68 @@ function rebuildAll(){
   renderPreview();
 }
 
+/* ---------------- 從「開店前置清單」帶入（#shopImport=base64url JSON） ----------------
+   只收白名單欄位；先在頁面上方詢問，套用前備份到 phoenixLoanBackup（可用「復原生成前內容」還原）。 */
+function readShopImport(){
+  const m = /#shopImport=([\w-]+)/.exec(location.hash);
+  if(!m) return null;
+  history.replaceState(null, "", location.pathname + location.search);
+  try{
+    let s = m[1].replace(/-/g, "+").replace(/_/g, "/"); while(s.length % 4) s += "=";
+    const p = JSON.parse(decodeURIComponent(escape(atob(s))));
+    return p && p.from === "shop-opening-checklist" ? p : null;
+  }catch(e){ return null; }
+}
+function cleanShopImport(p){
+  const out = {business:{}, finance:{}, plan:{}}, labels = [];
+  const txt = (v, n) => typeof v === "string" && v.trim() ? v.trim().slice(0, n) : null;
+  const num = v => typeof v === "number" && isFinite(v) && v >= 0 && v < 1e11 ? Math.round(v) : null;
+  const b = p.business || {}, f = p.finance || {}, pl = p.plan || {};
+  if(txt(b.name, 60)){ out.business.name = txt(b.name, 60); labels.push("事業名稱"); }
+  if(["company", "business", "license", "small"].includes(b.regType)){ out.business.regType = b.regType; labels.push("登記型態"); }
+  if(num(b.employeeCount) !== null){ out.business.employeeCount = num(b.employeeCount); labels.push("員工人數"); }
+  if(txt(b.mainProducts, 200)){ out.business.mainProducts = txt(b.mainProducts, 200); labels.push("主要產品"); }
+  ["totalFunding", "selfFunding", "requestedLoanAmount"].forEach(k => { if(num(f[k])) out.finance[k] = num(f[k]); });
+  if(out.finance.totalFunding) labels.push("資金總額");
+  if(out.finance.selfFunding) labels.push("自備金額");
+  if(out.finance.requestedLoanAmount) labels.push("申請貸款金額");
+  if(Array.isArray(f.fundUse)){
+    const use = f.fundUse.slice(0, 20).map(u => ({item:txt(u && u.item, 80), amount:num(u && u.amount)})).filter(u => u.item && u.amount);
+    if(use.length){ out.finance.fundUse = use; labels.push("資金用途 " + use.length + " 項"); }
+  }
+  let n = 0;
+  ["productService", "businessHours", "customerSource", "targetMarketAnalysis", "marketOutlook"].forEach(k => { if(txt(pl[k], 3000)){ out.plan[k] = txt(pl[k], 3000); n++; } });
+  if(n) labels.push("計畫書 " + n + " 段");
+  return {data:out, labels};
+}
+function offerShopImport(){
+  const p = readShopImport(); if(!p) return;
+  const {data, labels} = cleanShopImport(p);
+  if(!labels.length) return;
+  const bar = document.createElement("div");
+  bar.id = "shopImportBar";
+  bar.style.cssText = "margin:12px auto;max-width:1100px;background:#fff8e1;border:2px solid #f0b429;border-radius:10px;padding:12px 16px;font-size:15px;line-height:1.6";
+  bar.innerHTML = "<b>📦 從「開店前置清單」帶來的資料</b><br>會填入：" + escapeHtml(labels.join("、")) +
+    "。" + (startedFromSample ? "<br>你還沒填過申請書，套用後會從<b>空白申請書</b>開始（不會混到畫面上的範例資料）。" : "") + "<br><span style=\"color:#7a5b00\">套用前會先備份目前內容，不滿意可以按計畫書分頁的「復原生成前內容」還原。帶過來的內容仍請逐欄檢查。</span><br>" +
+    "<button id=\"shopImportYes\" style=\"margin-top:8px\">套用</button> <button id=\"shopImportNo\" style=\"margin-top:8px;background:#e5e7eb;color:var(--text)\">略過</button>";
+  const main = document.querySelector("main");
+  main.parentNode.insertBefore(bar, main);
+  document.getElementById("shopImportNo").onclick = () => bar.remove();
+  document.getElementById("shopImportYes").onclick = () => {
+    localStorage.setItem("phoenixLoanBackup", JSON.stringify(state));
+    document.getElementById("btnRestoreBackup").disabled = false;
+    if(startedFromSample) state = JSON.parse(JSON.stringify(EMPTY_STATE));
+    Object.assign(state.business, data.business);
+    ["totalFunding", "selfFunding", "requestedLoanAmount"].forEach(k => { if(data.finance[k]) state.finance[k] = data.finance[k]; });
+    if(data.finance.fundUse) state.finance.fundUse = data.finance.fundUse;
+    Object.assign(state.plan, data.plan);
+    saveState(); rebuildAll();
+    bar.innerHTML = "<b>✓ 已帶入：</b>" + escapeHtml(labels.join("、")) + "。請逐欄檢查，個人資料（申請人分頁）要自己填寫。" +
+      (data.finance.fundUse ? "<br><b style=\"color:#b42318\">⚠ 資金用途明細目前是整份開辦預算</b>：申請書要填的是「尚需資金」（要借的錢）用在哪些項目，請到「三、財務與資金計畫」刪減成用貸款支付的項目，讓加總等於尚需資金總額。" : "");
+  };
+  window.__shopImport = {data, labels};
+}
+
 /* ---------------- Init ---------------- */
 initWatermark();
 populateSampleSelect();
@@ -2681,6 +2744,7 @@ renderOtherIdentities();
 initListEditors();
 refreshDerived();
 renderPreview();
+offerShopImport();
 </script>
 </body>
 </html>

@@ -61,3 +61,6 @@ exe 未簽章，首次執行會遇 SmartScreen 警告（`phoenix-loan-limit/使�
 ## 指令
 
 無建置/測試指令。修改 `index.html` 後直接用瀏覽器開啟驗證即可；若要驗證授權序號檢查邏輯，需先照 `SETUP-授權伺服器設定.md` 部署好 Apps Script 並回填 `LICENSE_CHECK_URL`，否則會顯示「尚未設定授權伺服器網址」的 fail-closed 錯誤訊息（刻意設計，避免忘記部署時序號檢查被略過）。
+
+## 從「開店前置清單」帶入（2026-11-13）
+線上網址 `m255525.github.io/phoenix-loan-generator/` 部署的就是本資料夾，開店前置清單的「➡ 帶到鳳凰貸款申請書產生器」會開 `#shopImport=…`。`offerShopImport()`／`cleanShopImport()`／`startedFromSample` 與根目錄 `index.html` 為同一份程式（說明見上層 CLAUDE.md），改一邊要同步另一邊。不需要序號就能帶入。

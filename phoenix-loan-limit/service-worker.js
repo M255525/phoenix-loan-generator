@@ -1,5 +1,5 @@
 // 僅供「加入主畫面」安裝需求使用：network-first + 同源快取備援，不快取跨網域 API 請求。
-const CACHE_NAME = 'phoenix-loan-limit-shell-v1';
+const CACHE_NAME = 'phoenix-loan-limit-shell-v2';
 const SHELL_FILES = [
   './',
   './index.html',
